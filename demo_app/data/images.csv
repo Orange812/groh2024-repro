@@ -1,31 +1,31 @@
 image_id,file,disease,fst,attention_check,dls_pred_control,credit
-demo_000,,Acne,5,1,,
-demo_001,,Atopic dermatitis,2,0,,
-demo_002,,Atopic dermatitis,4,0,,
-demo_003,,Atopic dermatitis,6,0,,
-demo_004,,CTCL,1,0,,
-demo_005,,CTCL,3,0,,
-demo_006,,CTCL,5,0,,
-demo_007,,Dermatomyositis,2,0,,
-demo_008,,Dermatomyositis,5,0,,
-demo_009,,Dermatomyositis,6,0,,
-demo_010,,Lyme disease,1,0,,
-demo_011,,Lyme disease,3,0,,
-demo_012,,Lyme disease,5,0,,
-demo_013,,Lichen planus,2,0,,
-demo_014,,Lichen planus,4,0,,
-demo_015,,Lichen planus,6,0,,
-demo_016,,Pityriasis rosea,1,0,,
-demo_017,,Pityriasis rosea,3,0,,
-demo_018,,Pityriasis rosea,5,0,,
-demo_019,,Pityriasis rubra pilaris,2,0,,
-demo_020,,Pityriasis rubra pilaris,4,0,,
-demo_021,,Pityriasis rubra pilaris,6,0,,
-demo_022,,Secondary syphilis,3,0,,
-demo_023,,Secondary syphilis,5,0,,
-demo_024,,Secondary syphilis,6,0,,
-demo_025,,Psoriasis,3,0,,
-demo_026,,Vitiligo,5,0,,
-demo_027,,Sarcoidosis,6,0,,
-demo_028,,Seborrheic dermatitis,2,0,,
-demo_029,,Granuloma annulare,4,0,,
+f17k_000,1d0c3ae7936229f929d3d7d3216f8162.jpg,Acne,5,1,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_001,5eb9e332b83802ac60a82f9b39cfc41d.jpg,Atopic dermatitis,6,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_002,5b63fb8bb8d8f41eb15f5c7f294de0b6.jpg,Atopic dermatitis,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_003,9163c0dc32069e063ef96a82941cccb3.jpg,CTCL,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_004,96004967206f290b58a07554103b46df.jpg,CTCL,2,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_005,50bb16c1bfa029e80a55ce64149f3338.jpg,CTCL,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_006,a8558bbb85a4e1854e2e0d581de9e886.jpg,CTCL,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_007,8241eef01508124031566d00e2d452e5.jpg,Dermatomyositis,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_008,aafc091486c0b29dd05d399e88bb96b8.jpg,Dermatomyositis,2,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_009,0cecfe8aa964b75bfd8ab616fbf5538b.jpg,Dermatomyositis,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_010,1f00d2c15eaae750c70f5b93035a5c0c.jpg,Dermatomyositis,2,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_011,64d88a9aba7718df1ff3a07f6e675493.jpg,Lichen planus,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_012,c8bc376edcfe3858d466b543b8995e7b.jpg,Lichen planus,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_013,433100113d3ee62e2339b78e28f1934c.jpg,Lichen planus,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_014,bc0da2c3d8c2504c33cee7c968be2112.jpg,Lichen planus,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_015,6b3d128fa86fc86273d6146ea32149be.jpg,Lyme disease,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_016,a138d33b43cd6ebc926c72444f05c260.jpg,Pityriasis rosea,6,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_017,52868595e8528ee060c008833304c0f2.jpg,Pityriasis rosea,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_018,0066264501f73b1db09b3e2aa4dac0a0.jpg,Pityriasis rosea,6,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_019,67df381b4828feddef55b2fe4f55108a.jpg,Pityriasis rosea,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_020,b33801b74be02c85e6d9683331bc981a.jpg,Pityriasis rubra pilaris,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_021,922c6e400e802606b03a7b9fc4731508.jpg,Pityriasis rubra pilaris,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_022,bd65806b6a90d0648cee71904fad90f7.jpg,Pityriasis rubra pilaris,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_023,401b49c4dbda1a21967d2e27627e4756.jpg,Pityriasis rubra pilaris,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_024,055e1c055b30cd061a01440a5c1ea26c.jpg,Syringoma,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_025,a6652385250358e2cc805181be1123f9.jpg,Porokeratosis actinic,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_026,53f7dbf331f5eee075a7ad7d14eb6733.jpg,Squamous cell carcinoma,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_027,4aa66108547ab25b842ecf578cde7675.jpg,Papilomatosis confluentes and reticulate,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_028,04437cd3092a8922dc9af8100d350431.jpg,Kaposi sarcoma,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+f17k_029,c4b436c20c971661c945867ea0b5dbda.jpg,Papilomatosis confluentes and reticulate,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br

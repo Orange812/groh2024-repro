@@ -113,6 +113,56 @@ def fetch_all(plan: pd.DataFrame, out_dir: Path, workers: int = 8) -> pd.Series:
     return pd.Series(ok, index=plan.index)
 
 
+def host_of(url) -> str:
+    m = re.search(r"https?://(?:www\.)?([^/]+)/", str(url))
+    return m.group(1) if m else ""
+
+
+def live_hosts(df: pd.DataFrame, n_probe: int = 3, seed: int = 0) -> set[str]:
+    """每个图片网站抽几张试下载（只读到内存，不保存）；全部失败的网站视为已失效。
+    例：dermaamin.com 改版后旧图片地址 301 → 404，F17k 里 77% 的图片因此无法下载。"""
+    hosts = df.url.map(host_of)
+    alive = set()
+    for h in sorted(hosts.unique()):
+        sample = df[hosts == h].sample(min(n_probe, int((hosts == h).sum())), random_state=seed)
+        ok = False
+        for u in sample.url:
+            try:
+                req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (classroom demo)"})
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    ok = len(r.read()) >= 2000
+            except Exception:                                  # noqa: BLE001
+                ok = False
+            if ok:
+                break
+        print(f"  {h:<28} {'可以访问' if ok else '失效（跳过）'}")
+        if ok:
+            alive.add(h)
+    return alive
+
+
+def interleave(df: pd.DataFrame, seed: int) -> pd.DataFrame:
+    """候选图片按"深色、浅色"交替排序（深色优先），下载时按顺序补足数量，尽量深浅各半。"""
+    dark = df[df.fst.between(5, 6)].sample(frac=1, random_state=seed)
+    light = df[df.fst.between(1, 4)].sample(frac=1, random_state=seed)
+    order = []
+    for i in range(max(len(dark), len(light))):
+        order += [x.iloc[[i]] for x in (dark, light) if i < len(x)]
+    return pd.concat(order) if order else df.head(0)
+
+
+def fetch_quota(cands: pd.DataFrame, n: int, out_dir: Path, workers: int, max_try: int = 40) -> pd.DataFrame:
+    """按顺序分批下载候选图片，直到成功 n 张或试满 max_try 张（个别链接失效时自动换下一张）。"""
+    got, step = [], max(n, 4)
+    for start in range(0, min(len(cands), max_try), step):
+        batch = cands.iloc[start:start + step]
+        ok = fetch_all(batch, out_dir, workers)
+        got.append(batch[ok.values])
+        if sum(map(len, got)) >= n:
+            break
+    return pd.concat(got).head(n) if got else cands.head(0)
+
+
 def main():
     ap = argparse.ArgumentParser(description="下载 Fitzpatrick17k 图片")
     ap.add_argument("--csv", required=True, help="fitzpatrick17k.csv")
@@ -159,36 +209,49 @@ def main():
 
     # ---------------- demo 模式
     dfk = df[df.fst.between(1, 6)]
-    plan = []
+    if not a.dry_run:
+        print("\n检查图片网站是否仍可访问：")
+        alive = live_hosts(dfk, seed=a.seed)
+        dfk = dfk[dfk.url.map(host_of).isin(alive)]
     if check:
         print("\n按图片网址核对 F17k 标签（剔除原图谱文件夹与标签不符的图片）：")
+    # (疾病名, 候选图片, 需要的张数, 是否注意力检查图)
+    groups = []
     acne = dfk[dfk.label.str.lower().str.contains("acne", na=False)]
     acne = keep_consistent(acne, lambda r: "Acne", check, "Acne（注意力检查）")
-    if not acne.empty:                                         # 注意力检查图（论文用的是一张痤疮图）
-        plan.append(acne.sort_values("fst", ascending=False).head(1).assign(disease="Acne", attention_check=1))
+    groups.append(("Acne", acne.sort_values("fst", ascending=False), 1, 1))   # 论文：第一张固定是痤疮图
     for dis, h in hits.items():
         if h:
             cand = keep_consistent(dfk[dfk.label.isin(h)], lambda r, d=dis: d, check, dis)
-            plan.append(pick(cand, a.per_class, a.seed).assign(disease=dis, attention_check=0))
+            groups.append((dis, interleave(cand, a.seed), a.per_class, 0))
     others = dfk[~dfk.label.isin(main_labels) & ~dfk.label.str.lower().str.contains("acne", na=False)]
     if a.n_other and not others.empty:
         pool = others.sample(min(len(others), a.n_other * 20), random_state=a.seed)   # 先抽候选池再核对，避免逐行模糊匹配 1.6 万行
         pool = keep_consistent(pool, lambda r: r.label, check, "其他疾病（候选池）")
-        o = pool.head(a.n_other)
-        plan.append(o.assign(disease=o.label.str.capitalize(), attention_check=0))
-    plan = pd.concat(plan, ignore_index=True)
-    print(f"\n计划下载 {len(plan)} 张演示图片")
+        groups.append(("Other", pool, a.n_other, 0))
+
     if a.dry_run:
-        print(plan[["disease", "label", "fst", "url"]].to_string(index=False))
+        print("\n下载计划（每组的前几张候选；实际下载时失效链接会自动换下一张）：")
+        for dis, cand, n, att in groups:
+            show = cand.head(n)
+            for r in show.itertuples(index=False):
+                print(f"  {dis:<26} FST{int(r.fst)}  {r.label:<28} {r.url}")
         return
 
     img_dir = ROOT / "demo_app" / "static" / "images"
-    ok = fetch_all(plan, img_dir, a.workers)
+    got, short = [], []
+    for dis, cand, n, att in groups:
+        res = fetch_quota(cand, n, img_dir, a.workers)
+        name = res.label.str.capitalize() if dis == "Other" else dis
+        got.append(res.assign(disease=name, attention_check=att))
+        if len(res) < n:
+            short.append(f"{dis}（{len(res)}/{n}）")
+    plan = pd.concat(got, ignore_index=True)
+    missing = [d for d, h in hits.items() if not h]
     rows = [{"image_id": f"f17k_{i:03d}", "file": f"{r.md5hash}.jpg", "disease": r.disease, "fst": int(r.fst),
              "attention_check": int(r.attention_check), "dls_pred_control": "",
-             "credit": "Fitzpatrick17k (CC BY-NC-SA 3.0) · "
-                       + re.sub(r"^https?://(www\.)?([^/]+)/.*$", r"\2", str(r.url))}
-            for i, r in enumerate(plan[ok].itertuples(index=False))]
+             "credit": f"Fitzpatrick17k (CC BY-NC-SA 3.0) · {host_of(r.url)}"}
+            for i, r in enumerate(plan.itertuples(index=False))]
     out = ROOT / "demo_app" / "data" / "images.csv"
     if not rows:
         print("全部下载失败（网络或原网站问题），保留原来的图片清单不变。")
@@ -196,7 +259,11 @@ def main():
     if out.exists():
         out.rename(out.with_name(f"images_backup_{time.strftime('%Y%m%d_%H%M%S')}.csv"))
     pd.DataFrame(rows).to_csv(out, index=False)
-    print(f"成功 {len(rows)} / {len(plan)} 张 → {out}")
+    print(f"\n成功 {len(rows)} 张 → {out}")
+    if short:
+        print("可下载的公开图片不足：" + "、".join(short))
+    if missing:
+        print("Fitzpatrick17k 中没有对应标签：" + "、".join(missing))
     print("下一步（可选）：用训练好的 AI 写入预测：python dls/predict.py --update-demo")
 
 
