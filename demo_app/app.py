@@ -68,28 +68,46 @@ def _to9(label: str) -> str:
     return next((k for k in MAIN8 if matches(label, k)), "Other")
 
 
+def _is_attention(r: dict) -> bool:
+    return str(r.get("attention_check", "0")).strip() in ("1", "true", "True")
+
+
 def load_images() -> list[dict]:
     with open(IMAGES_CSV, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
     classes = list(MAIN8) + ["Other"]
-    out = []
+    # 没有真实模型预测的图片：按配额精确模拟，而不是每张图独立抛硬币。
+    # 图片少时独立抽样波动很大（例如 29 张图上抽到 38%），配额法保证正好 47% 的图片预测正确（9 分类）。
+    sim = sorted((r["image_id"].strip() for r in rows
+                  if not (r.get("dls_pred_control") or "").strip() and not _is_attention(r)),
+                 key=lambda i: _u(i + "|ctrl"))
+    sim_correct = set(sim[:round(CONTROL_ACC * len(sim))])
+    preds = {}
     for r in rows:
-        iid, disease = r["image_id"].strip(), r["disease"].strip()
-        true9 = _to9(disease)
+        iid, true9 = r["image_id"].strip(), _to9(r["disease"].strip())
         pred = (r.get("dls_pred_control") or "").strip()
         if pred:
             pred = _to9(pred)                                   # 真实模型的预测（dls/predict.py 写入）
-        elif _u(iid + "|ctrl") < CONTROL_ACC:
-            pred = true9                                        # 否则按 47% 准确率模拟
+        elif iid in sim_correct or _is_attention(r):
+            pred = true9                                        # 否则按 47% 配额模拟
         else:
             wrong = [c for c in classes if c != true9]
             pred = wrong[int(_u(iid + "|wrong") * len(wrong))]
-        pred_t = true9 if (pred != true9 and _u(iid + "|woz") < FLIP) else pred
+        preds[iid] = (true9, pred)
+    # Wizard of Oz：把错误预测中正好 65%（按配额）改成正确答案 → 47% + 53% × 65% ≈ 81%
+    wrong_ids = sorted((i for i, (t, p) in preds.items() if p != t), key=lambda i: _u(i + "|woz"))
+    flipped = set(wrong_ids[:round(FLIP * len(wrong_ids))])
+    out = []
+    for r in rows:
+        iid, disease = r["image_id"].strip(), r["disease"].strip()
+        true9, pred = preds[iid]
+        pred_t = true9 if iid in flipped else pred
         aux = AUXILIARY[int(_u(iid + "|aux") * len(AUXILIARY))]  # 预测 "Other" 时从 36 种辅助疾病中随机给一个
         file = (r.get("file") or "").strip()
         out.append({
             "image_id": iid, "disease": disease, "fst": int(float(r.get("fst") or 0) or 0),
-            "attention": str(r.get("attention_check", "0")).strip() in ("1", "true", "True"),
+            "attention": _is_attention(r),
+            "pred9": {"control": pred, "treatment": pred_t},    # 9 分类预测（论文计算 AI 准确率的口径）
             "file": file if file and (IMG_DIR / file).exists() else "",
             "credit": r.get("credit", ""),
             "suggestion": {"control": aux if pred == "Other" else pred,
