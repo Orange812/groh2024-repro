@@ -1,0 +1,445 @@
+abscess
+acanthoma fissuratum
+acanthosis nigricans
+accessory nipple
+acne
+acne keloidalis
+acquired digital fibrokeratoma
+acral keratosis
+acral peeling skin syndrome
+acrocyanosis
+acrodermatitis atrophicans chronica
+acropustulosis of infancy
+actinic keratosis
+actinic granuloma
+acute generalised exanthematous pustulosis
+adnexal neoplasm
+adult onset still disease
+albinism
+allergic contact dermatitis
+alopecia areata
+alopecia mucinosa
+alopecia neurotica
+amyloidosis of skin
+anagen effluvium
+androgenetic alopecia
+anetoderma
+angina bullosa hemorrhagica
+angioedema
+angiofibroma
+angiokeratoma of skin
+angiolymphoid hyperplasia with eosinophilia
+angiosarcoma of skin
+animal bite - wound
+apocrine cystadenoma
+arsenical keratosis
+arterial ulcer
+arteriovenous malformation
+atopic dermatitis (eczema)
+eczema (atopic dermatitis)
+atrophic glossitis
+atrophoderma
+atrophoderma vermiculatum
+atypical nevus
+atypical fibroxanthoma of skin
+b-cell cutaneous
+lymphoma
+basal cell carcinoma
+beau's lines
+becker's nevus
+benign neoplasm of nail apparatus
+benign neural tumor
+benign salivary gland tumor
+blistering distal dactylitis
+blue sacral spot
+bowenoid papulosis
+deep fungal infection
+dental fistula
+dermatitis herpetiformis
+dermatofibroma
+dermatofibrosarcoma protuberans
+dermatomyositis
+dermatosis caused by lice
+dermoid cyst of skin
+desmoplastic trichoepithelioma
+diabetic dermopathy
+diabetic ulcer
+digital myxoid cyst
+digital mucous cyst
+dissecting cellulitis of scalp
+dowling-degos syndrome
+drug rash
+eccrine carcinoma of skin
+ecthyma
+ecthyma gangrenosum
+eczema
+edema bulla
+epidermal nevus
+epidermolysis bullosa
+erosive pustular dermatosis
+eruptive xanthoma
+erysipelas
+erythema ab igne
+erythema annulare centrifugum
+erythema dyschromicum perstans
+erythema elevatum diutinum
+erythema gyratum repens
+erythema marginatum
+erythema migrans (lyme)
+lyme (erythema migrans)
+erythema multiforme
+erythema nodosum
+erythrasma
+erythromelalgia
+erythromelanosis follicularis faciei et colli
+fat necrosis
+fibrofolliculoma
+flagellate erythema
+flegels disease
+flushing
+focal epithelial hyperplasia of skin
+folliculitis
+folliculitis decalvans
+fordyce spots
+foreign body
+foreign body reaction of the skin
+fox-fordyce disease
+frontal fibrosing alopecia
+ganglion cyst
+geographic tongue
+giant cell tumor
+ichthyosis
+idiopathic guttate hypomelanosis
+iga pemphigus
+impetigo
+incontinentia pigmenti
+induced hypopigmentation
+infected eczema
+infected skin ulcer
+inflammatory linear verrucous epidermal nevus
+inflicted skin lesions
+ingrown hair
+injection site disorder
+insect bite
+interstitial granulomatous dermatitis
+intertrigo
+inverted follicular keratosis
+irritant contact dermatitis
+juvenile xanthogranuloma
+kaposi's sarcoma of skin
+keratoderma
+keratolysis exfoliativa
+keratosis pilaris
+knuckle pads
+lentigo
+leprosy
+leukemia cutis
+leukocytoclastic vasculitis
+leukonychia
+leukoplakia of skin
+lichen nitidus
+lichen planopilaris
+lichen planus
+lichen sclerosus
+lichen spinulosus
+lichen striatus
+lichenoid keratosis
+lichenoid myxedema
+linear iga disease
+lipoatrophy
+lipodermatosclerosis
+lipoid proteinosis
+lipoma
+lipschütz ulcer
+livedo reticularis
+livedoid vasculopathy
+lobomycosis
+local infection of wound
+longitudinal melanonychia
+lymphadenopathy
+lymphangioma
+lymphedema
+lymphomatoid papulosis
+madarosis
+malignant cylindroma
+nail dystrophy due to trauma
+nasal polyp
+nasolabial dyssebacia
+necrobiosis lipoidica
+necrolytic acral erythema
+necrotizing fasciitis
+neuralgia paresthetica
+neutrophilic eccrine hidradenitis
+nevus anemicus
+nevus comedonicus
+nevus depigmentosus
+nevus lipomatosus cutaneous superficialis
+nevus of ito
+nevus of ota
+nevus sebaceous
+nevus spilus
+nodular vasculitis
+non-melanin pigmentation due to exogenous substance (disorder)
+notalgia paresthetica
+o/e - ecchymoses present
+ochronosis
+onychocryptosis
+onychogryphosis
+onycholysis
+onychomadesis
+onychomalacia
+onychomatricoma
+onychomycosis
+onychopapilloma
+onychorrhexis
+onychoschizia
+oral fibroma
+osteoma
+osteoma cutis
+otitis externa
+paget disease
+palisaded neutrophilic granulomatous dermatitis
+palmar pit
+papilloma of skin
+parapsoriasis
+paronychia
+pearly penile papules
+pemphigoid gestationis
+pemphigus foliaceus
+pemphigus paraneoplastica
+pemphigus vulgaris
+perforating dermatosis
+perichondritis of auricle
+perioral dermatitis
+periungual fibroma
+perleche
+phimosis
+photodermatitis
+phrynoderma
+piezogenic pedal papule
+rmsf - rocky mountain spotted fever
+radiation dermatitis
+raynaud's phenomenon
+relapsing polychondritis
+retention hyperkeratosis
+reticular erythematous
+mucinosis
+reticulate erythematous
+mucinosis
+reticulohistiocytosis
+rheumatoid nodule
+rhytides
+rosacea
+scc/sccis
+sjs/ten
+sk/isk
+scabies
+scar condition
+scleredema
+sclerodactyly
+sebaceous adenoma of skin
+sebaceous carcinoma
+sebaceous hyperplasia
+seborrheic dermatitis
+skin tag
+skin and soft tissue atypical mycobacterial infection
+skin atrophy
+skin changes due to malnutrition
+skin lesion in drug addict
+skin striae
+small plaque parapsoriasis
+small vessel thrombosis of skin
+sneddon-wilkinson disease
+stasis dermatitis
+subungual fibroma
+sweet syndrome
+symmetrical dyschromatosis of extremities
+secondary syphilis
+primary syphilis
+syphilis (secondary)
+syphilis (primary)
+tmep - telangiectasia macularis eruptiva perstans
+tattoo
+telangiectasia disorder
+telogen effluvium
+thrombophlebitis
+tinea
+tinea versicolor
+torus palatinus
+trachyonychia
+traction alopecia
+traumatic bulla
+traumatic ulcer
+triangular alopecia
+trichostasis spinulosa
+trichotillomania
+trigeminal trophic syndrome
+brachioradial pruritus
+breast cancer
+bullosis diabeticorum
+bullous pemphigoid
+burn of skin
+bursitis
+cafe au lait macule
+calcinosis cutis
+calciphylaxis cutis
+candida
+canker sore
+carotene pigmentation of skin
+cellulitis
+central centrifugal cicatricial alopecia
+chancroid
+chemical leukoderma
+chicken pox exanthem
+chilblain
+chondrodermatitis nodularis
+cicatricial pemphigoid
+clavus
+clear cell acanthoma
+clubbing of fingers
+collagenoma
+colloid milium
+comedone
+condyloma acuminatum
+confluent and reticulate papillomatosis
+congenital alopecia
+connective tissue nevus
+crohn disease of skin
+cutaneous t-cell lymphoma (ctcl)
+ctcl (cutaneous t-cell lymphoma)
+cutaneous capillary malformation
+cutaneous collagenous vasculopathy
+cutaneous larva migrans
+cutaneous leishmaniasis
+cutaneous lupus
+cutaneous lymphadenoma
+cutaneous metastasis
+cutaneous myiasis
+cutaneous neurofibroma
+cutaneous neuroma
+sarcoidosis
+cutaneous schistosomiasis
+cutaneous sporotrichosis
+cutis laxa
+cutis verticis gyrata
+cylindroma of skin
+cyst
+glomus tumour of skin
+gout
+graft versus host disease
+granular parakeratosis
+granuloma annulare
+granuloma faciale
+grover's disease
+hailey hailey disease
+hair nevus
+hair sinus
+hairy tongue
+half-and-half nail
+hand foot and mouth disease
+head lice
+hemangioma
+hematoma of skin
+hemorrhoid
+hemosiderin pigmentation of skin
+herpes simplex
+herpes zoster
+hidradenitis
+hirsutism
+hordeolum internum
+hyperhidrosis
+hypersensitivity
+hypertrichosis
+malignant eccrine spiradenoma
+mastocytoma
+mastocytosis
+median rhomboid glossitis
+melanin pigmentation due to exogenous substance
+melanocytic nevus
+melanoma
+melanotic macule
+melasma
+merkel cell carcinoma
+microcystic adnexal carcinoma
+milia
+miliaria
+molluscum contagiosum
+scleroderma
+morsicatio buccarum
+mucocele
+mucocutaneous venous malformation
+pigmented fungiform papillae
+pigmented purpuric eruption
+pilomatricoma
+pilonidal cyst
+pincer nail deformity
+pinkus tumor
+pitted keratolysis
+pityriasis alba
+pityriasis amiantacea
+pityriasis lichenoides
+pityriasis rosea
+pityriasis rotunda
+pityriasis rubra pilaris (prp)
+prp (pityriasis rubra pilaris)
+pleomorphic fibroma
+poikiloderma
+porokeratosis
+porphyria cutanea tarda
+post-inflammatory hyperpigmentation
+post-inflammatory hypopigmentation
+pressure ulcer
+pressure-induced dermatosis
+pretibial myxedema
+primary cutaneous sarcoma
+progressive macular hypomelanosis
+prurigo nodularis
+pruritic urticarial papules and plaques of pregnancy
+pseudocyst of auricle
+pseudolymphoma
+pseudopelade
+psoriasis
+psychogenic alopecia
+pterygium of nail
+puncture wound - injury
+purpura
+pyoderma gangrenosum
+pyogenic granuloma
+tripe palms
+tuberculosis of skin and subcutaneous tissue
+ulceration in behcet disease
+urticaria
+urticaria multiforme
+varicose veins of lower extremity
+venous stasis ulcer
+verruca vulgaris
+viral exanthem
+vitiligo
+warty dyskeratoma
+wells' syndrome
+wooly hair
+xanthoma
+xerosis
+yellow nail syndrome
+zoon's balanitis
+zosteriform reticulate hyperpigmentation
+neurotic excoriations
+stasis edema
+urticaria pigmentosa
+papilomatosis (confluentes and reticulate)
+confluent and reticulated papillomatosis
+fixed drug eruption
+tick bite
+factitial dermatitis
+stevens johnson syndrome
+cheilitis
+sarcoidosis
+tungiasis
+urticaria
+rhinophyma
+nematode infection
+lichen amyloidosis
+keloid
+drug eruption
+lichen simplex
+lupus erythematosus

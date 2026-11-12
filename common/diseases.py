@@ -61,6 +61,28 @@ EXTRA_SUGGESTIONS = [
 ALL_LABELS = list(MAIN8) + AUXILIARY + EXTRA_SUGGESTIONS
 
 
+def _load_suggestions() -> list[str]:
+    """输入框联想提示：优先使用作者原实验的 445 个诊断名（dx_options_445.txt）。
+
+    来源：ResearchBox #1802 Analysis.ipynb 第 89 个单元格的 possible_options（CC BY 4.0），
+    与论文 Methods "predictive text based on 445 possible diagnoses" 对应；原名单有 3 个重复项，去重后 442 个。
+    文件不存在时退回到上面的精简名单。只影响联想提示，不影响判分。"""
+    from pathlib import Path
+    p = Path(__file__).with_name("dx_options_445.txt")
+    if not p.exists():
+        return ALL_LABELS
+    seen, out = set(), []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s and s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
+
+
+SUGGESTIONS = _load_suggestions()
+
+
 def _norm(s: str) -> str:
     s = (s or "").lower().strip()
     s = s.replace("’", "'").replace("_", " ")

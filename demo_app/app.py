@@ -34,7 +34,7 @@ from flask import Flask, Response, redirect, render_template, request, send_file
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent
 sys.path.insert(0, str(ROOT))
-from common.diseases import ALL_LABELS, AUXILIARY, MAIN8, canonical, in_differential, matches  # noqa: E402
+from common.diseases import AUXILIARY, MAIN8, SUGGESTIONS, canonical, in_differential, matches  # noqa: E402
 
 DATA = BASE / "data"
 IMG_DIR = BASE / "static" / "images"
@@ -178,7 +178,7 @@ def trial():
     im = BY_ID[st["order"][st["i"]]]
     if request.method == "GET":
         st["t0"] = time.time()
-        return render_template("trial.html", im=im, k=st["i"] + 1, n=N_TRIALS, labels=ALL_LABELS,
+        return render_template("trial.html", im=im, k=st["i"] + 1, n=N_TRIALS, labels=SUGGESTIONS,
                                is_bcd=st["survey"]["physician_type"] == "BCD")
     f = request.form
     dx = [f.get(f"dx{j}", "").strip() for j in (1, 2, 3)]
