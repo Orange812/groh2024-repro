@@ -344,7 +344,9 @@ def t8_moderators(d):
     x = d[d.physician_type == "PCP"].copy()
     rows = []
     if "patient_mix" in x and x.patient_mix.notna().any():
-        x["white_mix"] = x.patient_mix.astype(str).str.lower().isin(["mostly white", "all white"]).astype(int)
+        # matches both the original survey options ("Mostly white patients", "All white patients")
+        # and the older short forms ("mostly white", "all white")
+        x["white_mix"] = x.patient_mix.astype(str).str.strip().str.lower().str.match(r"^(mostly|all) white").astype(int)
         for g, lab in ((1, "主要/全部接诊白人患者"), (0, "其他")):
             r = diff_test(x[x.white_mix == g], "top3_correct", "dark", "participant_id")
             rows.append({"PCP 子组": lab, "top-3 深色−浅色": f"{pp(r['diff'])} ({fmt_p(r['p'])})",

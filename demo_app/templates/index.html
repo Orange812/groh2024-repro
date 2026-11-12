@@ -15,40 +15,52 @@
     <label>1. What best describes you?
       <select name="physician_type" required>
         <option value="" disabled selected>Select…</option>
-        <option value="BCD">Board-certified dermatologist</option>
-        <option value="Resident">Dermatology resident</option>
-        <option value="PCP">Primary care physician</option>
-        <option value="Other">Other physician</option>
-        <option value="Student">Not a clinician (student / other)</option>
+        {# Answer options below are the original experiment's options, recovered from the author's data
+           (ResearchBox 1802). Values stay as short codes so the analysis scripts keep working. #}
+        <option value="BCD">Board-certified/board-eligible dermatologist (MD or DO)</option>
+        <option value="Resident">Dermatology resident (MD or DO)</option>
+        <option value="PCP">PCP physician (MD or DO)</option>
+        <option value="Other">Other physician (MD or DO)</option>
+        <option value="Student">Not a clinician (student / other) — classroom-only option</option>
       </select></label>
 
     <label>2. How many years have you practiced medicine?
       <select name="years">
-        <option>Not applicable</option><option>0-2</option><option>2-10</option>
-        <option>10-20</option><option>20+</option><option>in training</option>
+        <option value="" selected>----Please select one----</option>
+        <option>0-2</option><option>2-5</option><option>5-10</option><option>10-20</option><option>20+</option>
+        <option>Currently doing an internship</option><option>Currently doing a residency</option>
+        <option>Currently doing a fellowship</option>
+        <option>Not attending medical school and not practicing medicine</option>
       </select></label>
 
     <label>3. How would you describe the distribution of your patients' skin colors?
       <select name="patient_mix">
-        <option>not applicable</option><option>about equal</option><option>mostly white</option>
-        <option>all white</option><option>mostly non-white</option><option>all non-white</option>
+        <option value="" selected>----Please select one----</option>
+        <option>All white patients</option><option>Mostly white patients</option>
+        <option>About an equal portion of patients with skin of color (non-white) and white patients</option>
+        <option>Mostly patients with skin of color (non-white)</option>
+        <option>All patients with skin of color (non-white)</option><option>Not applicable</option>
       </select></label>
 
     <label>4. How often do you find it difficult to diagnose skin disease in white patients?
       <select name="difficulty_white">
-        <option>not applicable</option><option>rarely</option><option>1 in 10 patients</option>
-        <option>1 in 4 patients</option><option>1 in 2 patients</option>
+        <option value="" selected>----Please select one----</option>
+        <option>One in two patients (50%)</option><option>One in ten patients (10%)</option>
+        <option>One in one hundred patients (1%)</option>
+        <option>Less than one in one hundred of patients (&lt;1%)</option><option>Not Applicable</option>
       </select></label>
 
     <label>5. …and in non-white patients?
       <select name="difficulty_nonwhite">
-        <option>not applicable</option><option>rarely</option><option>1 in 10 patients</option>
-        <option>1 in 4 patients</option><option>1 in 2 patients</option>
+        <option value="" selected>----Please select one----</option>
+        <option>One in two patients (50%)</option><option>One in ten patients (10%)</option>
+        <option>One in one hundred patients (1%)</option>
+        <option>Less than one in one hundred of patients (&lt;1%)</option><option>Not Applicable</option>
       </select></label>
 
     <label>6. Do you feel you received sufficient training for diagnosing skin diseases in patients with skin of color?
       <select name="sufficient_training">
-        <option>not applicable</option><option>yes</option><option>no</option>
+        <option value="" selected>----Please select one----</option><option>Yes</option><option>No</option>
       </select></label>
 
     <label>7. Which country do you live in?
