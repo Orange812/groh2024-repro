@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="trial">
+  <figure class="photo small">
+    <img src="{{ url_for('img', image_id=im.image_id) }}" alt="Clinical photograph">
+  </figure>
+  <div class="card">
+    <p class="muted small">Your differential</p>
+    <ol class="dx">
+      {% for d in [rec.dx1, rec.dx2, rec.dx3] if d %}<li>{{ d }}</li>{% endfor %}
+    </ol>
+    <div class="ai-box">
+      <p class="muted small">AI model suggestion</p>
+      <p class="ai-dx">{{ sugg }}</p>
+      <p class="muted small">The AI model is not perfectly accurate.</p>
+    </div>
+    <form method="post" class="choices">
+      {% for value, text in buttons %}
+      <button class="btn choice" name="choice" value="{{ value }}" type="submit">{{ text }}</button>
+      {% endfor %}
+    </form>
+  </div>
+</section>
+{% endblock %}

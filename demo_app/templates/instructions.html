@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="card narrow">
+  <h1>Instructions</h1>
+  <ol class="steps">
+    <li>You will see one photo at a time — just like a patient photo sent through an
+      electronic health record, with no history or symptoms.</li>
+    <li>Type your <b>leading diagnosis</b>, and up to two more differential diagnoses. Suggestions appear as you
+      type, but you can write anything.</li>
+    <li>After you submit, an <b>AI model</b> may suggest a diagnosis. You decide whether to use it.
+      <span class="em">The AI model is not perfectly accurate.</span></li>
+    <li>You will then see the reference diagnosis. After {{ n }} images you can compare yourself with
+      dermatologists, primary care physicians and the AI.</li>
+  </ol>
+  <a class="btn primary" href="{{ url_for('trial') }}">Begin</a>
+</section>
+{% endblock %}
