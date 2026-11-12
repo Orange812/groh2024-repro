@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import time
 import urllib.request
@@ -32,6 +33,48 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from common.diseases import MAIN8, matches  # noqa: E402
+
+# Fitzpatrick17k 的标签有噪声。dermaamin.com 的图片网址里带着原图谱自己的诊断文件夹名，
+# 例如标成 "lyme disease" 的 128 张里有 40 张来自 erytrasma（红癣）文件夹，
+# "dermatomyositis" 里有 22 张来自 dermatophytie（皮肤癣菌病）。
+# demo 模式只保留文件夹名与疾病一致的图片（白名单逐条列出，便于审查）；
+# atlasdermatologico.com.br 的网址不含诊断信息，无法核对，予以保留。
+FOLDER_OK = {
+    "Acne": {"acne_vulgaris"},
+    "Atopic dermatitis": {"eczema_atopic"},
+    "CTCL": {"mycosis-fongoide"},
+    "Dermatomyositis": {"dermatomyositis"},
+    "Lichen planus": {"lichen_planus", "eruptive_lichen_planus", "lichen_ruber"},
+    "Lyme disease": {"erythem_achronicum_migrans", "lyme-disease", "lime-disease", "erythema_migrans"},
+    "Pityriasis rosea": {"pityriasis_rosea"},
+    "Pityriasis rubra pilaris": {"pityriasis_rubra_pilaris"},
+}
+
+
+def url_folder(url) -> str:
+    m = re.search(r"/clinical-pic/[^/]+/([^/]+)/", str(url))
+    return m.group(1) if m else ""
+
+
+def label_consistent(row, disease: str) -> bool:
+    """图片网址里的原图谱诊断是否与疾病一致；F17k 质控列标为"Wrongly labelled"的一律排除。"""
+    if str(getattr(row, "qc", "")).startswith("3"):
+        return False
+    folder = url_folder(row.url)
+    if not folder:
+        return True
+    if disease in FOLDER_OK:
+        return folder in FOLDER_OK[disease]
+    return matches(re.sub(r"[-_]+", " ", folder), disease)
+
+
+def keep_consistent(df: pd.DataFrame, disease_of, check: bool, name: str) -> pd.DataFrame:
+    if not check or df.empty:
+        return df
+    ok = [label_consistent(r, disease_of(r)) for r in df.itertuples(index=False)]
+    kept = df[ok]
+    print(f"  标签核对 {name:<26} 保留 {len(kept)}/{len(df)} 张")
+    return kept
 
 
 def pick(df, n, seed):
@@ -81,7 +124,10 @@ def main():
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--dry-run", action="store_true", help="只显示计划，不下载")
+    ap.add_argument("--no-label-check", action="store_true",
+                    help="demo 模式不按图片网址核对标签（默认核对，见 FOLDER_OK）")
     a = ap.parse_args()
+    check = not a.no_label_check
 
     df = pd.read_csv(a.csv)
     fst_col = next(c for c in ("fitzpatrick_scale", "fitzpatrick", "fitzpatrick_centaur") if c in df)
@@ -114,15 +160,21 @@ def main():
     # ---------------- demo 模式
     dfk = df[df.fst.between(1, 6)]
     plan = []
+    if check:
+        print("\n按图片网址核对 F17k 标签（剔除原图谱文件夹与标签不符的图片）：")
     acne = dfk[dfk.label.str.lower().str.contains("acne", na=False)]
+    acne = keep_consistent(acne, lambda r: "Acne", check, "Acne（注意力检查）")
     if not acne.empty:                                         # 注意力检查图（论文用的是一张痤疮图）
         plan.append(acne.sort_values("fst", ascending=False).head(1).assign(disease="Acne", attention_check=1))
     for dis, h in hits.items():
         if h:
-            plan.append(pick(dfk[dfk.label.isin(h)], a.per_class, a.seed).assign(disease=dis, attention_check=0))
+            cand = keep_consistent(dfk[dfk.label.isin(h)], lambda r, d=dis: d, check, dis)
+            plan.append(pick(cand, a.per_class, a.seed).assign(disease=dis, attention_check=0))
     others = dfk[~dfk.label.isin(main_labels) & ~dfk.label.str.lower().str.contains("acne", na=False)]
     if a.n_other and not others.empty:
-        o = others.sample(min(a.n_other, len(others)), random_state=a.seed)
+        pool = others.sample(min(len(others), a.n_other * 20), random_state=a.seed)   # 先抽候选池再核对，避免逐行模糊匹配 1.6 万行
+        pool = keep_consistent(pool, lambda r: r.label, check, "其他疾病（候选池）")
+        o = pool.head(a.n_other)
         plan.append(o.assign(disease=o.label.str.capitalize(), attention_check=0))
     plan = pd.concat(plan, ignore_index=True)
     print(f"\n计划下载 {len(plan)} 张演示图片")
@@ -134,7 +186,8 @@ def main():
     ok = fetch_all(plan, img_dir, a.workers)
     rows = [{"image_id": f"f17k_{i:03d}", "file": f"{r.md5hash}.jpg", "disease": r.disease, "fst": int(r.fst),
              "attention_check": int(r.attention_check), "dls_pred_control": "",
-             "credit": "Fitzpatrick17k (CC BY-NC-SA 3.0)"}
+             "credit": "Fitzpatrick17k (CC BY-NC-SA 3.0) · "
+                       + re.sub(r"^https?://(www\.)?([^/]+)/.*$", r"\2", str(r.url))}
             for i, r in enumerate(plan[ok].itertuples(index=False))]
     out = ROOT / "demo_app" / "data" / "images.csv"
     if not rows:
