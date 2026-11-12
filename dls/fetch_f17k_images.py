@@ -32,7 +32,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from common.diseases import MAIN8, matches  # noqa: E402
+from common.diseases import AUXILIARY, MAIN8, matches  # noqa: E402
 
 # Fitzpatrick17k 的标签有噪声。dermaamin.com 的图片网址里带着原图谱自己的诊断文件夹名，
 # 例如标成 "lyme disease" 的 128 张里有 40 张来自 erytrasma（红癣）文件夹，
@@ -224,10 +224,15 @@ def main():
         if h:
             cand = keep_consistent(dfk[dfk.label.isin(h)], lambda r, d=dis: d, check, dis)
             groups.append((dis, interleave(cand, a.seed), a.per_class, 0))
-    others = dfk[~dfk.label.isin(main_labels) & ~dfk.label.str.lower().str.contains("acne", na=False)]
+    # 论文中 8 种主要疾病以外的图片（80 张）都来自 36 种辅助疾病；AI 预测 "Other" 时也从这 36 种里随机给建议。
+    # 所以"其他疾病"只从这 36 种（F17k 里能找到的）中挑，痤疮已用作注意力检查图，不再重复。
+    aux_of = {l: aux for aux in AUXILIARY if aux != "Acne"
+              for l in labels if l not in main_labels and "acne" not in l.lower() and matches(l, aux)}
+    others = dfk[dfk.label.isin(aux_of)]
     if a.n_other and not others.empty:
-        pool = others.sample(min(len(others), a.n_other * 20), random_state=a.seed)   # 先抽候选池再核对，避免逐行模糊匹配 1.6 万行
-        pool = keep_consistent(pool, lambda r: r.label, check, "其他疾病（候选池）")
+        # 每种辅助病最多 1 张，尽量覆盖不同疾病；先抽候选池再核对
+        pool = others.sample(frac=1, random_state=a.seed).drop_duplicates("label").head(a.n_other * 4)
+        pool = keep_consistent(pool, lambda r: aux_of[r.label], check, "辅助疾病（候选池）")
         groups.append(("Other", pool, a.n_other, 0))
 
     if a.dry_run:
@@ -242,7 +247,7 @@ def main():
     got, short = [], []
     for dis, cand, n, att in groups:
         res = fetch_quota(cand, n, img_dir, a.workers)
-        name = res.label.str.capitalize() if dis == "Other" else dis
+        name = res.label.map(aux_of) if dis == "Other" else dis
         got.append(res.assign(disease=name, attention_check=att))
         if len(res) < n:
             short.append(f"{dis}（{len(res)}/{n}）")
