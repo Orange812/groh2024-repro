@@ -1,0 +1,21 @@
+PASS Home page: 7 survey questions
+PASS Lectern mode: URL parameters can fix the interface arm
+PASS Instructions: 'AI is not perfectly accurate', accuracy not disclosed
+PASS Image 1 is always the acne attention-check image
+PASS Diagnosis boxes: 3 free-text inputs + the original placeholder text
+PASS Predictive text: 442 diagnoses (the authors' original list)
+PASS Confidence slider defaults to 50%
+PASS Referral question asked of everyone except BCDs
+PASS AI suggestion already in the differential → suggestion page skipped
+PASS Feedback page: reference diagnosis + most common incorrect answer
+PASS Suggestion page: the three button labels match the paper
+PASS After 10 images: comparison with BCDs, PCPs and the AI + option to continue
+PASS Remaining images in random order (different for each person)
+PASS Control interface button order: top → include → keep
+PASS Treatment interface reverses it: keep → include → top
+PASS AI suggestions come only from the 8 conditions + 36 auxiliary diseases (a random auxiliary disease when predicting Other)
+PASS /dashboard and /export.csv work
+
+AI on these 29 images: 9-class accuracy control 48%, enhanced 83%; suggestion shown matches the reference diagnosis: control 38%, enhanced 66% (for Other-class images the suggestion is a random auxiliary disease)
+PASS AI 9-class accuracy by quota: control = 47%, enhanced ≈ 47% + 53% × 65%
+Log: <scratchpad>/sim_check.csv | rows 80

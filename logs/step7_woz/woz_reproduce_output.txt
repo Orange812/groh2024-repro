@@ -1,0 +1,31 @@
+images: 364 in data, 363 with labels and predictions (excluded: 1 image without a consensus label)
+
+== 1. Audit: is the author's treatment DLS exactly 'flip some wrong predictions to correct'? ==
+control correct (170 images): treatment identical in 100%
+control wrong   (193 images): flipped to the truth 127, unchanged 66, changed to another wrong label 0
+flip rate among wrong predictions: 127/193 = 65.8%   (paper: 65%)
+  note: 127 is also the number printed by the author's notebook (cell 95: print(127/364))
+
+== 2. Accuracy (9-class top-1) vs paper ==
+subset                control  paper  treatment  paper
+all 363 images          46.8%    47%      81.8%    84%
+8 main conditions       56.3%      -      84.2%      -
+8 main, FST 1-4         55.8%    56%      84.5%    84%
+8 main, FST 5-6         57.7%    58%      83.3%    82%
+theory for all images: p + (1-p) x 0.65 = 81.4%
+-> the paper's '84%' matches the 8 main conditions (84.2%); on all labelled images the treatment DLS is 81.8% (297/363; 297/364 = 81.6% if the unlabelled image counts as wrong)
+
+== 3. Was the flipping random? (among the control model's wrong predictions) ==
+flip rate FST 1-4: 68.5% (n=127) | FST 5-6: 60.6% (n=66) | Fisher exact P = 0.337
+flip rate by true label: chi-square P = 0.193
+  Dermatomyositis: 38%, Secondary syphilis: 50%, Lichen planus: 59%, CTCL: 61%, Atopic dermatitis: 68%, Other: 70%, Pityriasis rosea: 76%, Lyme disease: 80%, Pityriasis rubra pilaris: 80%
+model confidence of flipped vs kept: 0.405 vs 0.409 (Mann-Whitney P = 0.695)
+
+== 4. Redo the WoZ with the toolkit's enhance() on the author's real control predictions ==
+subset                author    1000 re-runs: mean [2.5%, 97.5%]  author percentile
+all images             81.8%         81.4%  [78.0%, 85.1%]            59%
+8 main                 84.2%         84.7%  [80.6%, 88.4%]            38%
+8 main, FST 5-6        83.3%         85.0%  [78.2%, 92.3%]            32%
+8 main, FST 1-4        84.5%         84.5%  [80.1%, 88.8%]            48%
+
+wrote <repo>/logs/step7_woz/woz_input.csv (columns: image_id, label, pred, fst)

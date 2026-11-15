@@ -1,0 +1,26 @@
+# Full diff of every change to the author's code since the baseline (26068be = files as downloaded).
+
+commit 395b201d47dbfcb3261c5614a7a1d8142f53009a
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 19:47:06 2026 -0500
+
+    fix data path: read the zipped CSV shipped in ResearchBox (Data/Experimental Data.csv.zip)
+    
+    The notebook reads ../Data/Experimental Data.csv, but ResearchBox ships only
+    the .zip (single file, no __MACOSX). pandas reads a single-file zip directly.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/ResearchBox 1802/Code/Analysis.ipynb b/ResearchBox 1802/Code/Analysis.ipynb
+index 6eac4ba..451e742 100644
+--- a/ResearchBox 1802/Code/Analysis.ipynb	
++++ b/ResearchBox 1802/Code/Analysis.ipynb	
+@@ -77,7 +77,7 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "df = pd.read_csv(\"../Data/Experimental Data.csv\")\n",
++    "df = pd.read_csv(\"../Data/Experimental Data.csv.zip\")\n",
+     "if not os.path.exists(\"figs\"):\n",
+     "    os.mkdir(\"figs\")"
+    ]

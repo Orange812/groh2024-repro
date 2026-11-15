@@ -1,0 +1,15 @@
+8 main conditions: n=9368 agreement=0.9892 | replica correct/author wrong: 13 | replica wrong/author correct: 88
+other 36 conditions: n=2482 agreement=0.9098 | replica correct/author wrong: 139 | replica wrong/author correct: 85
+
+Top disagreements (replica wrong, author correct):
+label                     differential_1             
+Atopic dermatitis         contact dermatitis             19
+                          allergic contact dermatitis    14
+Lyme disease              lymes                           4
+Atopic dermatitis         acute eczema                    3
+Secondary syphilis        sifilide                        3
+Atopic dermatitis         eczéma                          3
+Pityriasis rubra pilaris  pitiriasi rubra                 2
+Atopic dermatitis         infected eczema                 2
+                          eczema herpeticum               2
+Lyme disease              lyme rash                       2

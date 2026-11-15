@@ -1,0 +1,10 @@
+# Changes to groh2024_repro_kit (history imported into this repository; paths are relative to groh2024_repro_kit/). Baseline fe9e009 = toolkit as received.
+e454af7 Translate the toolkit's comments, messages and README into English (no logic or number changes; see `git show e454af7`)
+7947102 wizard_of_oz: add --exact, report 8-main accuracy, resolve the '84% vs 81%' note
+563b3d7 fetch_f17k_images: 'other' demo images come from the paper's 36 auxiliary diseases
+f0b8e5a demo_app: simulate DLS accuracy by quota instead of independent coin flips
+2e35713 fetch_f17k_images: skip dead image hosts and fill each class quota; demo set downloaded
+e43803a fetch_f17k_images: drop F17k images whose source-atlas folder contradicts the label
+2c48153 demo_app: survey answer options match the original experiment
+45451d6 demo_app: autocomplete uses the author's 445 diagnosis options
+fe9e009 toolkit as received (groh2024_repro_kit.zip, 2026-11-10)

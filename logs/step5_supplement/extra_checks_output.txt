@@ -1,0 +1,15 @@
+PCP referral-to-dermatologist rate under different subsets (paper text says 28%):
+  main sample (author filters)       0.3556  (n=3150)
+  main sample, US only               0.3548  (n=2052)
+  all PCP round-1 rows               0.3151  (n=5458)
+  incl. >10th image (seen>1)         0.3228  (n=4693)
+  only >10th image                   0.2560  (n=1543)
+  attention-check failers incl.      0.3526  (n=3213)
+  main sample, control DLS arm       0.4031  (n=1476)
+  main sample, treatment DLS arm     0.3136  (n=1674)
+BCD: wrong-DLS obs=903 | joint P(lead & diff1 wrong)=0.1008 | joint P(lead & all3 wrong)=0.0941 | conditional P(lead | all3 wrong)=0.1483 (n=573)
+PCP: wrong-DLS obs=1108 | joint P(lead & diff1 wrong)=0.1426 | joint P(lead & all3 wrong)=0.1372 | conditional P(lead | all3 wrong)=0.1721 (n=883)
+DLS accuracy, all 364 images: control 0.4683 | treatment 0.8159
+DLS accuracy, 8 main conditions: control 0.5634 | treatment 0.8415
+DLS accuracy, other images: control 0.1266 | treatment 0.725 n 80
+distinct consensus labels: 44 | images with missing label: 1

@@ -1,0 +1,364 @@
+image_id,label,pred,fst,pred_treatment
+d004cb97466c65e1c951a288d74baca0.jpg,CTCL,CTCL,6,CTCL
+c9b6269c36df7d726e7394ca5173fca8.jpg,CTCL,CTCL,5,CTCL
+06e61e194c85bfec487f98c8b4833376.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,3,Pityriasis rubra pilaris
+418200bcc74b0e6bf514180d1ba15b39.jpg,Lyme disease,Pityriasis rosea,6,Lyme disease
+5bc8c940685117ba78113fd68e1057d3.jpg,Dermatomyositis,Dermatomyositis,4,Dermatomyositis
+306a7fb4588baf4744f0f9da5548f6b0.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+5bb937e7eea1646428be5837d79a7b4f.jpg,Other,Dermatomyositis,2,Other
+900b7c133c30c6c0dd99ce896bd995e6.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+9aac8fefb791c2ccf112c799b3d0c5b5.jpg,Other,Lichen planus,1,Other
+7caa8de80253fa8a47dc67f265cab9d6.jpg,Dermatomyositis,Dermatomyositis,2,Dermatomyositis
+b9a933b0f60a2a76ec71356ca41074c9.jpg,Other,Other,2,Other
+7bcb890f8c756781ea5d3059c0301821.jpg,Lichen planus,Lichen planus,5,Lichen planus
+efbcdff91845c8e31a42e5f1d15f0c64.jpg,Other,CTCL,6,CTCL
+e34bf6e96294b8200e1d32f0fd1cc1b6.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,3,Pityriasis rubra pilaris
+9b42bd8b4eeecdca4cc3e9780322edf5.jpg,Lichen planus,Lichen planus,6,Lichen planus
+bc7453e25b0428d521bfd7ea846ac450.jpg,Lyme disease,Lyme disease,3,Lyme disease
+ac7559de90af0e164c64965ca3b49592.jpg,Other,Atopic dermatitis,2,Atopic dermatitis
+0ca65e74079b47e98aaeea1f5aab6475.jpg,Atopic dermatitis,Pityriasis rosea,2,Atopic dermatitis
+0ce67399ec989a649c473733a49218f8.jpg,Dermatomyositis,Dermatomyositis,2,Dermatomyositis
+5c4ba5494253128bd1296513e63c0e82.jpg,Pityriasis rubra pilaris,Atopic dermatitis,2,Pityriasis rubra pilaris
+702efb84bdc6e14a4222d6d001535a71.jpg,Pityriasis rosea,Pityriasis rosea,6,Pityriasis rosea
+3c9015001ca92a4029f1af9d52703042.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+1ba38182b6fa95722620667387680979.jpg,Pityriasis rosea,Pityriasis rosea,3,Pityriasis rosea
+6e9088eff059120866664108d8a65526.jpg,CTCL,CTCL,3,CTCL
+8d4f1262a0534e1d906a21a1bcb8707d.jpg,CTCL,CTCL,4,CTCL
+5f29bff0b7f2e153a7ae4d58dabf4b99.jpg,Dermatomyositis,Dermatomyositis,1,Dermatomyositis
+8c3a38caabb04fd744f3c94a0fd1d41c.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+398505290bac3f20522e79113cacdf3e.jpg,Other,Atopic dermatitis,5,Atopic dermatitis
+5afa19ff0546f833e71bc78d4d190275.jpg,Pityriasis rosea,Other,4,Other
+1e4809ab0ddcf3e525a5727e13b257ae.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+1b3896849f2384b0255ed87712968460.jpg,Lichen planus,CTCL,6,CTCL
+7d76730e0704db4985ed54c5d5c1e93b.jpg,Lichen planus,Secondary syphilis,6,Lichen planus
+8f24538425f2f07d9894954c9e807b31.jpg,Lyme disease,Lyme disease,1,Lyme disease
+63be8d11de80340ef5b3ab9e5ea9ff3a.jpg,Pityriasis rosea,Pityriasis rosea,4,Pityriasis rosea
+f4b43af6ae7c16445b754e27ae4604bb.jpg,Lyme disease,Lyme disease,1,Lyme disease
+17ee353163c9547c20c4fbd6b8270603.jpg,Lyme disease,Pityriasis rosea,4,Lyme disease
+0d352d591a2640c11f5d548d01f11d52.jpg,Atopic dermatitis,Atopic dermatitis,4,Atopic dermatitis
+67fb52eee55d2ee661a80dc4f60408fc.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+41ae35aee628d12af26fa6399e9639b3.jpg,Dermatomyositis,Dermatomyositis,4,Dermatomyositis
+17efdfe36901539abb7a0d85f2e8c3ab.jpg,Other,Lichen planus,2,Other
+07592526d0c34df3fe6b3bceb2a969b4.jpg,Lyme disease,Pityriasis rubra pilaris,6,Lyme disease
+e177c1b1ca76aebe0cb5c990d1bff462.jpg,Other,Other,6,Other
+33ec1df199d222377a50d32ca8714d4c.jpg,Lichen planus,Pityriasis rosea,1,Lichen planus
+b8eb55ce4fad54cd41ab600f04716b00.jpg,Lichen planus,Lichen planus,5,Lichen planus
+0e3e08e439f73a72167aa6c7e6e7e574.jpg,Lichen planus,Atopic dermatitis,1,Lichen planus
+56e697186c86b0eb09f19021ebe4b9a8.jpg,Other,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+6a03bce4334d9c8565b12d45d1043f21.jpg,Atopic dermatitis,CTCL,1,Atopic dermatitis
+377890dbdb2dfe06aa0c410ca84c8c37.jpg,CTCL,Pityriasis rubra pilaris,3,CTCL
+3c64fc9d1d75d88cc8f4183803edc5f3.jpg,Other,Pityriasis rosea,5,Other
+5aab89bf105f0f0f78cc57294a0f317a.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+27c9a5afe4420bce6c93f6a6a2a84e8a.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,3,Pityriasis rubra pilaris
+c94ce27e389f96bda998e7c3fa5c4a2e.jpg,Other,CTCL,5,Other
+db758e4ced503e9e328442c25efc93f6.jpg,Other,Dermatomyositis,2,Dermatomyositis
+eff7a873ad735f3976b551d69d6c7e76.jpg,Lyme disease,Dermatomyositis,5,Lyme disease
+3ae9d59d68941df5b9633c526ef59bda.jpg,Atopic dermatitis,Pityriasis rubra pilaris,5,Atopic dermatitis
+2c9393a7347e9baa519be86e3ba84319.jpg,Atopic dermatitis,Lyme disease,3,Atopic dermatitis
+114f3a55954c6c174e30b90a05428e69.jpg,Atopic dermatitis,Lichen planus,6,Atopic dermatitis
+cec2228d074378a834439f7b04aebdfd.jpg,Other,CTCL,6,CTCL
+5a52c55b89887f64a88ecf994ea1e6dd.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+4a8b163be0f34adad2c1b5b2529f5f8c.jpg,CTCL,CTCL,5,CTCL
+442e0d96558f045b10a1fc46a8c342e2.jpg,Lyme disease,Atopic dermatitis,1,Lyme disease
+5c5b3a60e6fcf6ee80439a7402f76131.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+c7fabd8f3bd44635f9254ebad77378cf.jpg,Other,Secondary syphilis,1,Other
+2283401632b08dd9f42191c6cd2f4a0e.jpg,Pityriasis rosea,Pityriasis rosea,2,Pityriasis rosea
+6cd78f548d8f1d6350e44ea788f1a796.jpg,CTCL,Pityriasis rosea,2,CTCL
+8a39410ce1ae1515d3a3d4fb15df5685.jpg,Other,Secondary syphilis,6,Secondary syphilis
+0ba1c99828f163b4aa0d69a97748a347.jpg,Lichen planus,Other,3,Lichen planus
+c01407169c44578359c4c5817cbc12c9.jpg,Secondary syphilis,Secondary syphilis,3,Secondary syphilis
+8c8e5d33b4a3277eafec71c2f05ffa8c.jpg,Lyme disease,Lyme disease,6,Lyme disease
+0ead5995e5e7d47e38310cff4adeca7a.jpg,Lichen planus,CTCL,2,Lichen planus
+6abe4a46e04ae8b80cd5b935cec961fc.jpg,Secondary syphilis,Atopic dermatitis,4,Secondary syphilis
+13c08e3f161836cd5b39c5ce840c327b.jpg,CTCL,Atopic dermatitis,6,Atopic dermatitis
+98bef7c8cc4521eab1f8cced801fdb11.jpg,Dermatomyositis,Dermatomyositis,4,Dermatomyositis
+bf8c825e289576c038dcccbd8a77444e.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,1,Pityriasis rubra pilaris
+75c407499841321672ccaa0132ecef2a.jpg,Dermatomyositis,Pityriasis rubra pilaris,6,Dermatomyositis
+3bc9f74695066ce0f7a94cc872e90afd.jpg,Secondary syphilis,Secondary syphilis,5,Secondary syphilis
+6ee4352859d2d4e52247864219202c69.jpg,Secondary syphilis,Secondary syphilis,1,Secondary syphilis
+6b2810107699e33fc84ba4b93c09c0d5.jpg,Dermatomyositis,Lyme disease,2,Lyme disease
+4636aa70443a09da047663421257d2a6.jpg,Other,Other,2,Other
+c2ba787029af2c423b039759c0f7dc97.jpg,Other,Lyme disease,2,Other
+991a40ed0f44c6d66e2d432136b56e68.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,3,Pityriasis rubra pilaris
+9092ba84d536eebb58e04eb83f380193.jpg,Other,Pityriasis rubra pilaris,5,Other
+d6da17745dc1ffa645d4fc52e76a7418.jpg,Other,Pityriasis rosea,1,Other
+711d1b12cef5a3aaa8db2cea0838a9ad.jpg,Other,Lyme disease,5,Lyme disease
+02b64e149240b462e81dd7410c145b59.jpg,Atopic dermatitis,Atopic dermatitis,5,Atopic dermatitis
+3e3d022279f868469f9c117d09d26590.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+f9414071a0fdd537488038b57e237966.jpg,Other,Secondary syphilis,6,Secondary syphilis
+5217ed439faafefe05eb765bb64b7fa6.jpg,Other,Lyme disease,1,Lyme disease
+9f5eb3107bc355c57389397d8f42c40b.jpg,Lichen planus,Lichen planus,2,Lichen planus
+c699fbf373baa0193e9382d1a94d105e.jpg,Other,Lichen planus,1,Lichen planus
+a6f73a22dc647ea15c5c1654ef15d93d.jpg,Other,CTCL,6,CTCL
+e82f9780ddd8dd50227f1327d30f4bbb.jpg,Other,Other,6,Other
+6c14a093bddd5c570e8657e7ddd380a1.jpg,Atopic dermatitis,Pityriasis rubra pilaris,4,Atopic dermatitis
+2092c480d793d5e886431c7e19ecac3d.jpg,CTCL,CTCL,6,CTCL
+4a23754af2cc0d04759cf9d0800f9420.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+6d40a929e6372c31a6efeb9abddb5067.jpg,Lyme disease,Pityriasis rosea,2,Pityriasis rosea
+7bd45e78e16e48cfe72732eb534be5f5.jpg,Pityriasis rosea,Pityriasis rubra pilaris,5,Pityriasis rosea
+cf26d48947b7a20bd56e650022dbb17f.jpg,Pityriasis rosea,Lichen planus,2,Lichen planus
+0c136d7bb6fdb92049f9509c381388ef.jpg,Atopic dermatitis,Atopic dermatitis,3,Atopic dermatitis
+248bfd193e520144fac461e0cd4f609c.jpg,Secondary syphilis,Dermatomyositis,1,Dermatomyositis
+3d8d7229294dc0011bcd9f8c34703b86.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+0cb9fc4e5eb7e740a9e29eabb243f4a9.jpg,Pityriasis rosea,Pityriasis rubra pilaris,5,Pityriasis rosea
+fcb7c9a72a96211facd7a155ddf74678.jpg,Other,Dermatomyositis,5,Dermatomyositis
+1f128ca0180906928987e107682fd941.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+2cc61572d7bcf492c25a0ede978600d5.jpg,Other,Pityriasis rubra pilaris,6,Other
+f65be953633fdcdeaa43c8f91412bc80.jpg,Dermatomyositis,Dermatomyositis,6,Dermatomyositis
+8da0ad261c76d6ed8587ad2275664650.jpg,Lichen planus,Pityriasis rubra pilaris,4,Lichen planus
+bf2ec8673d8dcc435ac5acd9c77902be.jpg,Pityriasis rosea,Lyme disease,4,Lyme disease
+df3ef69ba65eec92ecbda6b82e27349f.jpg,Other,Pityriasis rubra pilaris,5,Other
+11832490169ff3d86af7a82c8694ea06.jpg,CTCL,Dermatomyositis,2,Dermatomyositis
+af4e43e3e696a009d1be531ad2b75e53.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+0a8dc887a107b7098a6b26db63972c11.jpg,Atopic dermatitis,Pityriasis rosea,1,Atopic dermatitis
+1d880c5d06148a789e33af7c75cd7282.jpg,Other,Secondary syphilis,2,Secondary syphilis
+72bc638c452173c9fe858e6c3f9c1548.jpg,Other,Other,2,Other
+8c1209c7954339254f17dd161059d02b.jpg,Pityriasis rosea,Pityriasis rosea,3,Pityriasis rosea
+6bfb69e2afca6e315960a4fcd6c26c48.jpg,Dermatomyositis,Dermatomyositis,1,Dermatomyositis
+1ebdbc319c0e41c1416a74fe9a985cba.jpg,Lyme disease,Atopic dermatitis,5,Atopic dermatitis
+14a46eb43de79c29b29fb0f869965a74.jpg,CTCL,Pityriasis rubra pilaris,3,CTCL
+5fbf8180a2ecb8d9149140119a903bdf.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+06398ba5f1b36bba70cd09c8d8f98e78.jpg,Lyme disease,Lyme disease,3,Lyme disease
+2b79487e196c0ef834431783c733b78b.jpg,Dermatomyositis,Dermatomyositis,3,Dermatomyositis
+90e5afe86a2736fa5d86c6cb8d740dea.jpg,Pityriasis rosea,Pityriasis rubra pilaris,4,Pityriasis rosea
+4fed2c9263e6b8b45145fcfe549347d4.jpg,Lichen planus,CTCL,3,CTCL
+912c327f83e362c38b76fde79c4e9e9a.jpg,Lichen planus,Lichen planus,4,Lichen planus
+92e7af973a3996da44bf5acd32babc72.jpg,Pityriasis rubra pilaris,Lichen planus,2,Pityriasis rubra pilaris
+8e3e6476cc246b5632f55e206f8ee12c.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+a040f6de4db09e3c01949ad13bfc330a.jpg,Other,Pityriasis rosea,5,Pityriasis rosea
+b35e33d66e25c189e187ffa1c8baef91.jpg,Dermatomyositis,Lyme disease,5,Dermatomyositis
+9b0a8bf1ad55bab5a7417ac14dd95ae7.jpg,Other,Secondary syphilis,6,Other
+3d822b3a7b2041a2a65a098a4febcef1.jpg,Dermatomyositis,Dermatomyositis,3,Dermatomyositis
+441904da8c7a742db13b0a505570516e.jpg,Pityriasis rosea,Other,4,Pityriasis rosea
+b6958a50d2d882ea481d844cac116859.jpg,Other,Dermatomyositis,2,Other
+e03b0cb2606b24586b91eeb42f2aabfe.jpg,Other,Secondary syphilis,5,Secondary syphilis
+1fd6a2e31917ffbd6e592f398cd8aed6.jpg,Dermatomyositis,Atopic dermatitis,2,Dermatomyositis
+3940e30593f2600440b6eb8c3e9d30b2.jpg,CTCL,Pityriasis rosea,3,CTCL
+0666fca007f781f3895e9db579221875.jpg,Lichen planus,Other,5,Lichen planus
+43ce0e9ed2c019269535816fbe28581c.jpg,CTCL,CTCL,6,CTCL
+7f0e6a3dbe064e24656a92e377a2b54b.jpg,Other,Secondary syphilis,5,Other
+24450896c9dd873862ab2c595ef948d2.jpg,Other,CTCL,2,CTCL
+38780f5b898ea1f7c731735aad2c6d5c.jpg,Lichen planus,Pityriasis rosea,5,Lichen planus
+5ab17dc9db3fe2f158aaa8dcaba58b8d.jpg,Pityriasis rosea,Pityriasis rosea,5,Pityriasis rosea
+99c364f2cd846a9a8e80b509d942878c.jpg,Pityriasis rosea,Pityriasis rubra pilaris,3,Pityriasis rosea
+8b5813f940915279bed54ea5b41b9abc.jpg,Other,Secondary syphilis,2,Secondary syphilis
+49db89c8154e7e7c7f5ea4efb5282801.jpg,Dermatomyositis,Dermatomyositis,1,Dermatomyositis
+64a7f51fd8ccc3d3e28e2c212473c7c5.jpg,Lichen planus,Lichen planus,2,Lichen planus
+43702027dad160a3acc63ee63fb8efaa.jpg,CTCL,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+013167a815535018c0752179024887bd.jpg,Secondary syphilis,Lyme disease,2,Secondary syphilis
+13e486442539071c30cc164baf526bc9.jpg,Dermatomyositis,Lyme disease,2,Lyme disease
+f572eb5920663d85ba8e334852415277.jpg,Other,Atopic dermatitis,5,Other
+0ced16a6dcabac857f513c743a398a08.jpg,Lichen planus,Other,4,Other
+a27eb6f5242fc68a17322014a3ac33b2.jpg,CTCL,Atopic dermatitis,3,CTCL
+3a1ca4d1c334fd3001c8101f4e6d9f94.jpg,CTCL,Pityriasis rosea,2,CTCL
+05ec667cfd8a73d9d51b341af2ca9dc1.jpg,Secondary syphilis,Secondary syphilis,3,Secondary syphilis
+cb0af0fcc0e78dcd7583689ee36f95d0.jpg,Other,Dermatomyositis,6,Dermatomyositis
+ca23c32063f4956fc0c8135205204935.jpg,Pityriasis rosea,Pityriasis rosea,1,Pityriasis rosea
+641e5b4711d6b77a3687b61f5525a35c.jpg,Dermatomyositis,Dermatomyositis,5,Dermatomyositis
+0f4eda49cb424b315ca60cc25852edb6.jpg,Atopic dermatitis,Lyme disease,1,Lyme disease
+0c80d019a4a3db3b00b8611a1a019858.jpg,Dermatomyositis,Dermatomyositis,2,Dermatomyositis
+47faf71cdedcee8f4075132570de2b3a.jpg,Lichen planus,Lichen planus,1,Lichen planus
+e1c5e29b0d023a6e9b86f5991f38cb47.jpg,Lichen planus,Lichen planus,6,Lichen planus
+7786ef6bc68f9ff3a95df5c997146247.jpg,Pityriasis rubra pilaris,Atopic dermatitis,1,Pityriasis rubra pilaris
+69cd77d105d3aeb8b7282a4c1cc28ce6.jpg,CTCL,CTCL,1,CTCL
+d1fb87ee7ee50f997cd6497dd90d6bbb.jpg,Other,Dermatomyositis,2,Other
+2b4873d75a090febfcc269d86f0dfc28.jpg,Pityriasis rosea,Pityriasis rosea,4,Pityriasis rosea
+54b59b3d59cfaa42cf1500a6cc0a3e61.jpg,Secondary syphilis,Pityriasis rosea,2,Pityriasis rosea
+2a8afb1a06f2ca8d1468c6abe4de0ca8.jpg,Atopic dermatitis,Atopic dermatitis,1,Atopic dermatitis
+90062ed9e2e8a96190a36266803e6d23.jpg,Lyme disease,Lyme disease,2,Lyme disease
+0066264501f73b1db09b3e2aa4dac0a0.jpg,Pityriasis rosea,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+331271b9f69a5e73ae152fd56a23adab.jpg,Other,Lichen planus,5,Lichen planus
+1c4aa0e09f599b5e26ca4c6cfc82339f.jpg,Secondary syphilis,Secondary syphilis,5,Secondary syphilis
+83d4cbbef0819a37ffd34cf412a5403b.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+60fb88f74742bc8c528b9034125d66f5.jpg,Secondary syphilis,Pityriasis rubra pilaris,1,Pityriasis rubra pilaris
+b4f251859beca41dc02b895fd0f871b3.jpg,Secondary syphilis,Secondary syphilis,4,Secondary syphilis
+3da51dc6986066da1045259378941638.jpg,Atopic dermatitis,Atopic dermatitis,6,Atopic dermatitis
+4b77b342edf2e3e43dcda843308cc58e.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+1b9c8360d791e2176411c8c467b1cca8.jpg,Lichen planus,Other,3,Other
+d0e61eed5e208dc480c23df4489ec2aa.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,3,Pityriasis rubra pilaris
+0f1c3e692bbf25659b898bcfa3122c44.jpg,Lichen planus,Lichen planus,4,Lichen planus
+0b509e4af2d8bd0d07724e68dc0114b1.jpg,Pityriasis rosea,Pityriasis rosea,3,Pityriasis rosea
+41a0cdda39f31a626fb90e2e06ce7e4f.jpg,Pityriasis rosea,Pityriasis rosea,3,Pityriasis rosea
+0ed8d29908b7ec7aac0920fabbcdfc60.jpg,Dermatomyositis,Dermatomyositis,3,Dermatomyositis
+a41731c6ccf0d65c7fdd468cbc6f2403.jpg,Other,CTCL,1,Other
+5caf3b0f191ef4fcffbd11bd6cd460a8.jpg,Secondary syphilis,Secondary syphilis,4,Secondary syphilis
+0b185c2852e924db6ece8efe1f7173d5.jpg,Atopic dermatitis,Secondary syphilis,2,Secondary syphilis
+628c3e8ca6cf4e1d3b3a7eaedc963105.jpg,CTCL,Atopic dermatitis,1,Atopic dermatitis
+3cbf9a96173badd32b0b0bcabb157203.jpg,Pityriasis rubra pilaris,Lichen planus,4,Pityriasis rubra pilaris
+4f02266ef07a2c96569aba629326af85.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+db4a08b4024363b4d2eaa3026e84e764.jpg,Other,Atopic dermatitis,1,Atopic dermatitis
+22af984a7ffb239c451ffea0e5f47b07.jpg,Other,Other,6,Other
+f118649acc6d822facc2f3bd32dd52e0.jpg,Dermatomyositis,Pityriasis rubra pilaris,1,Dermatomyositis
+f328f64ad2de05a7aac207abc410c25c.jpg,CTCL,Lichen planus,4,CTCL
+10e65dcdfd1a4e5e0c0dbd582c6627b3.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,1,Pityriasis rubra pilaris
+147096ef324c69c708c229922a8ff7a1.jpg,Other,Pityriasis rubra pilaris,5,Other
+0c724e3d30fb694ca488aadba483d4c0.jpg,CTCL,CTCL,3,CTCL
+25ec566494732a0660ac5259b8d562eb.jpg,Atopic dermatitis,CTCL,4,CTCL
+e9cc394f75adb132e86c7627d29fb2bb.jpg,Secondary syphilis,Secondary syphilis,4,Secondary syphilis
+3da1aaf9bd000689fe9cef6f4d2b60c2.jpg,Atopic dermatitis,Lichen planus,4,Atopic dermatitis
+2ef0d915825ac84637e9832fc8d786aa.jpg,CTCL,CTCL,4,CTCL
+ff3d8b898d833420f60f085817997e1a.jpg,Other,Other,1,Other
+5231e07a44718bb1cfde80240058632b.jpg,Dermatomyositis,CTCL,4,Dermatomyositis
+53c29a2e7e4ae55715aa61dbfb6c4775.jpg,Dermatomyositis,Atopic dermatitis,3,Dermatomyositis
+02b17b314ff9b6240e2ded4e0bbd3170.jpg,Secondary syphilis,Secondary syphilis,3,Secondary syphilis
+064e4ae9d102f045fd5dedcd81b7ad1d.jpg,Other,Pityriasis rosea,2,Pityriasis rosea
+2c88133e38ba53c6acfc22a5532a5176.jpg,Atopic dermatitis,Pityriasis rubra pilaris,4,Atopic dermatitis
+030ab080d0a380f3f5711d981b4dba98.jpg,Other,Atopic dermatitis,2,Other
+4d5d71fb190627f964a429de4802ef60.jpg,Lyme disease,Atopic dermatitis,4,Lyme disease
+f4b7b14859102eec2ac72624c4128dd0.jpg,Other,Lichen planus,5,Lichen planus
+4ee18f789cecf807e4672b12a39a6f5c.jpg,Other,Atopic dermatitis,1,Other
+5300196922e0e0a20a9ee6d9f751d70b.jpg,CTCL,CTCL,5,CTCL
+3bf05552c0a5d8b799c70dfd9d1e8c9f.jpg,Lichen planus,Lichen planus,4,Lichen planus
+7f5c8ea3aa5aa20a964a192907595c5b.jpg,Dermatomyositis,Dermatomyositis,1,Dermatomyositis
+28c35435ff9865099bdb3d59927e399d.jpg,Lyme disease,Lyme disease,3,Lyme disease
+1d2d2d0c9bdcbaf7c14a4cc311562237.jpg,Secondary syphilis,Secondary syphilis,3,Secondary syphilis
+59d49d7841de202a6f12c44a44cbe0ad.jpg,Lichen planus,Lichen planus,4,Lichen planus
+8f17ee816240773b34cd1075b5179aa1.jpg,Atopic dermatitis,Atopic dermatitis,5,Atopic dermatitis
+6f0e64c259bf5bf16a5d9fdba8ccea58.jpg,Lyme disease,Secondary syphilis,3,Lyme disease
+5ef49d0ba34ac89686a5dd8aacbcaa77.jpg,Lyme disease,Other,4,Other
+8a51babcd712e18357328da65ecbf196.jpg,Dermatomyositis,Dermatomyositis,2,Dermatomyositis
+4ebd12c3d11a74612b107e82d0a3928c.jpg,Dermatomyositis,Lyme disease,2,Lyme disease
+fcdc74ae580c2d1e045b8976ed0d1f18.jpg,Other,Secondary syphilis,1,Secondary syphilis
+5fe7d10d66c5d9b86ab12c1206d22fcd.jpg,CTCL,CTCL,3,CTCL
+44eacfeaa2112729972b379efb56b226.jpg,Secondary syphilis,Secondary syphilis,4,Secondary syphilis
+4fcc99459367a1e390c188e5f40fbfe7.jpg,Other,Dermatomyositis,6,Other
+9610f6d3362786b35fdf8de08b15841d.jpg,CTCL,CTCL,4,CTCL
+760a4a3453951d02dbf2228293639fc5.jpg,Dermatomyositis,Secondary syphilis,4,Secondary syphilis
+88dbcd1c90e1c55477d80ac6bab2f3c1.jpg,Other,Lyme disease,2,Other
+874c2a5b78b0a50a711328258dc608ee.jpg,Other,Atopic dermatitis,6,Other
+a61103096131b0e2673f234acd53ed26.jpg,Other,Pityriasis rubra pilaris,5,Other
+eb95f4dad88da12a0b6fa86ba650a66b.jpg,Lyme disease,Lyme disease,3,Lyme disease
+03a96d915f90de2c8af7359741b9a2d7.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,1,Pityriasis rubra pilaris
+1f7208ea5dbc7a45321e20ddb2ff2d15.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+e079fd28c7d384a154feaeb71f8c2630.jpg,Lyme disease,Lyme disease,3,Lyme disease
+d76f83755d821a4235a25750408d6d80.jpg,Pityriasis rosea,Pityriasis rubra pilaris,6,Pityriasis rosea
+961af1027bf56284401eea304d7f687d.jpg,CTCL,Lyme disease,3,Lyme disease
+6bf66e1f8f137126eab488c7a7892d02.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,3,Pityriasis rubra pilaris
+392e0c06afb149dc6acc223174b7d24d.jpg,CTCL,CTCL,1,CTCL
+88523b85b128b889f7bbc9ed545b3496.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+2fea6b5b90f86188f6d7532a608af27a.jpg,Other,Pityriasis rubra pilaris,1,Pityriasis rubra pilaris
+06a65434ce244edbfb3bcf710d3a1e7a.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+8f5c462175468864c1d9e5bf69a252ce.jpg,Other,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+6bdd941cd35e16c6eb38bf0ea215469c.jpg,Secondary syphilis,Secondary syphilis,4,Secondary syphilis
+492a772f1a5c6ff11a4f01f62ccf2ee3.jpg,CTCL,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+ae46f14881395aa37187f93d20a1fc8a.jpg,Other,Dermatomyositis,5,Dermatomyositis
+1406a350474ff7ca75c8899bb66e208c.jpg,Pityriasis rosea,Pityriasis rosea,4,Pityriasis rosea
+4d7762c63255dcdf4de2d8fd7865b80d.jpg,Dermatomyositis,Dermatomyositis,4,Dermatomyositis
+bbe774460efbb3a16b4d7c8814cb061d.jpg,Secondary syphilis,Secondary syphilis,2,Secondary syphilis
+b3d469ac2cc434558f850b09a89ea2d3.jpg,Pityriasis rosea,Other,1,Other
+54ead01e76eba04a6faa54f49747b5c6.jpg,Pityriasis rubra pilaris,CTCL,4,CTCL
+1ae030b1fb9f6c5297c935f510845695.jpg,Other,Lichen planus,2,Other
+531fcb9ba489344f3f58c501239f6ab5.jpg,Secondary syphilis,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+5e67ff394856122c86db1372bda31de5.jpg,Other,Pityriasis rosea,2,Other
+0b76da7ab2ab57c5df637bebb09ab87c.jpg,Atopic dermatitis,Atopic dermatitis,2,Atopic dermatitis
+c6b6a33b41369a1a2fb10130d6e581a4.jpg,Pityriasis rosea,Other,5,Other
+7f172b801cacb5ac7a1157df1181c548.jpg,Secondary syphilis,Secondary syphilis,3,Secondary syphilis
+2f61eb2a358bb9cacbe0195946470738.jpg,CTCL,CTCL,2,CTCL
+7de3bb6dd594765e6c377f7ecf6ed928.jpg,Atopic dermatitis,Atopic dermatitis,6,Atopic dermatitis
+0d3b86b9e7843c09422de2979004de77.jpg,CTCL,CTCL,3,CTCL
+5be83c8af21ee0234511c0ca79b3a68c.jpg,Atopic dermatitis,Lyme disease,1,Atopic dermatitis
+2ea9479ba9fc44fddaeb164eadc0d0bd.jpg,Lyme disease,Lyme disease,2,Lyme disease
+ac5a3fb28c091580ccc7f79c738671b4.jpg,Other,Other,1,Other
+3a6a24ba22604e37a8fc8e5c7dfb0b4c.jpg,Other,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+0b918cc26134bdc39d034f397c6dc009.jpg,Atopic dermatitis,Atopic dermatitis,5,Atopic dermatitis
+0b49d08e4cdade3f6dcffbd0c0b8b8c0.jpg,Secondary syphilis,Secondary syphilis,6,Secondary syphilis
+d1c875e6a77165f9954570121a4bf7b9.jpg,Other,Pityriasis rubra pilaris,6,Other
+fd4077da3e8aeb54185805ab8bb5cee5.jpg,Other,Lyme disease,2,Other
+1fb8c970ce54ac79b889590b3cf11d72.jpg,Lichen planus,Pityriasis rubra pilaris,5,Lichen planus
+4f510e991c94c7344e24e71be1fe497a.jpg,CTCL,CTCL,5,CTCL
+3a37374f8ce9f4f1c09eb6c8daa4da58.jpg,Atopic dermatitis,Pityriasis rosea,4,Atopic dermatitis
+d5a23dff2fde59ce73a6ab9862f9bc08.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+972f4b68ef802a2cda7cae086253df3f.jpg,CTCL,CTCL,4,CTCL
+176892dfc10eabf4ad8b1f50ec5df7e5.jpg,Dermatomyositis,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+468fd3b6da44399613ac823972d4abab.jpg,Lyme disease,Lyme disease,3,Lyme disease
+02c82e0f093f9cdbfa17fb0bceb8fa31.jpg,Atopic dermatitis,Atopic dermatitis,2,Atopic dermatitis
+2ad3d53799e07730677ddab6d58b5986.jpg,CTCL,CTCL,3,CTCL
+444ac68b847ac8d5d629307bddebc213.jpg,Atopic dermatitis,CTCL,6,CTCL
+f87fd0f096d9836aec9efcdb90821a63.jpg,Lyme disease,Lyme disease,1,Lyme disease
+38c61266de75ddf6a7384e1585af5eb9.jpg,Pityriasis rosea,Pityriasis rosea,1,Pityriasis rosea
+7e5c920dbfe16f45af8959108d620094.jpg,Pityriasis rubra pilaris,Lyme disease,3,Pityriasis rubra pilaris
+9163c0dc32069e063ef96a82941cccb3.jpg,CTCL,CTCL,5,CTCL
+82b29ce05524ec6451488eb244536249.jpg,Dermatomyositis,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+5f0b80ae8369ac3fbe6317e5335eee0c.jpg,Pityriasis rubra pilaris,CTCL,3,Pityriasis rubra pilaris
+335a1caffad9b2ea13a4da28759ea660.jpg,Secondary syphilis,Pityriasis rosea,3,Pityriasis rosea
+126ba4ed48561892ebe1e3405c9f685c.jpg,Other,Dermatomyositis,1,Dermatomyositis
+0bac6f2258c2693378bc37f6a80c4582.jpg,Atopic dermatitis,Atopic dermatitis,3,Atopic dermatitis
+6ffda568980ef2ff4900deb50d98865f.jpg,Secondary syphilis,CTCL,2,CTCL
+f347366ab65188676f45c3c79fe73b73.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,5,Pityriasis rubra pilaris
+521062f08459a4c1ed7e38ce7b461771.jpg,Secondary syphilis,Dermatomyositis,2,Secondary syphilis
+94a155e9f48fe1dc8e5471189762faf0.jpg,Secondary syphilis,Secondary syphilis,3,Secondary syphilis
+0c4a22136fd321c20b858dd0fe49b73f.jpg,Lichen planus,CTCL,3,Lichen planus
+4d8a492fa2d07ed46a102fa4739969bb.jpg,Lichen planus,Lichen planus,3,Lichen planus
+42d721c042e8950d83bbebd5330abbc3.jpg,CTCL,CTCL,6,CTCL
+86fce51a1f693e83efe38b651ae2ab1e.jpg,Lichen planus,Lichen planus,5,Lichen planus
+c16ca4d77bb5e35162976c3af2cec242.jpg,Lichen planus,Pityriasis rubra pilaris,6,Lichen planus
+3cb19992ca7a532de9548641f153820b.jpg,Lichen planus,Atopic dermatitis,1,Lichen planus
+8e0dbc65555eca9b01e3e3782569b71c.jpg,Other,Dermatomyositis,5,Other
+c9e2c4f670417c5a5e30e6f1e5178883.jpg,Atopic dermatitis,CTCL,6,Atopic dermatitis
+267518e9fd4adadae0b28dd8edb0d328.jpg,Other,CTCL,6,Other
+1c2e554b2725cba72d1c5412e40209f4.jpg,Atopic dermatitis,Atopic dermatitis,3,Atopic dermatitis
+a4784e46c797fa9392f44f878a5b9d1f.jpg,Lyme disease,CTCL,4,CTCL
+72f79b485c5d77c3fe2cb8839891fa15.jpg,Secondary syphilis,Secondary syphilis,5,Secondary syphilis
+6a683e627b103648b8a2963cce4da275.jpg,Dermatomyositis,Atopic dermatitis,1,Atopic dermatitis
+a28f0a5a865b7e2de69e9364e10495a7.jpg,Pityriasis rosea,Pityriasis rosea,4,Pityriasis rosea
+58ad197a8d47543ffa5719d80ecd7365.jpg,Lichen planus,Lichen planus,4,Lichen planus
+d8f122b99779ad61a1fda1ee1cadeb84.jpg,Other,Dermatomyositis,1,Dermatomyositis
+34b22791cee2fc84e2b6fb79f1ffeb1a.jpg,Dermatomyositis,Dermatomyositis,5,Dermatomyositis
+f954464e440cffac551a98c8f7d11f57.jpg,CTCL,Pityriasis rosea,3,Pityriasis rosea
+6afbc86d8b1719ef9ebbf1db2c8538ff.jpg,Pityriasis rosea,Dermatomyositis,2,Pityriasis rosea
+9a9e89528c374d6d66a7ebddedc15757.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,3,Pityriasis rubra pilaris
+4ec7b1d88fcefbac2ebbc3267bffb9b6.jpg,Dermatomyositis,Lyme disease,2,Lyme disease
+2b0370bb6c521277542bfe286d41d4ce.jpg,Other,Other,5,Other
+fac289559602f877efbc8fddc3b445ca.jpg,Secondary syphilis,CTCL,3,Secondary syphilis
+17fe027453643b7f417c88964af2e535.jpg,Other,Dermatomyositis,1,Other
+6fa562e207d7c7d3ad9c920e84637f8e.jpg,Other,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+d00b2593bb28015fb1f10e3c4cf51c02.jpg,Other,Atopic dermatitis,2,Other
+ab3baa16c4a71f49d798c814747fa6e1.jpg,Dermatomyositis,CTCL,3,Dermatomyositis
+4f93ae11350250dbfd20c2bd7b176b17.jpg,Lyme disease,Lyme disease,5,Lyme disease
+12331d50602fbe2dcec271fbebc211fa.jpg,CTCL,Lichen planus,5,Lichen planus
+4c7036fa3f2fa7dee511928403f679ab.jpg,Lichen planus,Atopic dermatitis,1,Lichen planus
+1e7c9106644d4b54d11524d75d303a35.jpg,Other,Other,1,Other
+0c2e10eb4337df18bef17a326cbc9899.jpg,Atopic dermatitis,CTCL,2,CTCL
+1b76224b8c7dc025ce191fc370f52098.jpg,Pityriasis rosea,Pityriasis rubra pilaris,2,Pityriasis rosea
+5ae4acc104d572788de6d0cced0223e7.jpg,Lyme disease,CTCL,6,Lyme disease
+4dfbf7e303f023af5d8f9631575fa4e7.jpg,Other,CTCL,1,CTCL
+6f432785eae97c58f413cfaeca2059f6.jpg,CTCL,CTCL,1,CTCL
+cf7dabcad2f5f600cf6efadcc6d1cc9b.jpg,Pityriasis rosea,Pityriasis rubra pilaris,1,Pityriasis rubra pilaris
+83daf1f52820079569a0a8c619084f6c.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+bfa22b164bf15e40f4897fde5d9a7c70.jpg,Lyme disease,Pityriasis rosea,4,Lyme disease
+8e294b5b1b64b6250fcd4c2c3c2dcc62.jpg,Atopic dermatitis,Pityriasis rubra pilaris,6,Pityriasis rubra pilaris
+0fe97e9a15a1178d2b08253d79a2adc6.jpg,Pityriasis rubra pilaris,CTCL,5,Pityriasis rubra pilaris
+b51bfdb3979aca780ac243c912dc7891.jpg,CTCL,CTCL,2,CTCL
+a0c8058a77cb50352e34f82ffff4b664.jpg,CTCL,Secondary syphilis,2,Secondary syphilis
+ceef1771cf861deb79c37c61f0f18f8a.jpg,CTCL,CTCL,6,CTCL
+3b19599490fdd12f405448e3e623133e.jpg,CTCL,CTCL,2,CTCL
+1d548487c6828ba27d4d40f803acf030.jpg,Other,Lyme disease,5,Other
+673023e413bd6c13a22159b7404ee356.jpg,Other,Lichen planus,1,Other
+bb56045661f90d8fc836d17f100e001c.jpg,CTCL,Lichen planus,6,Lichen planus
+5e38ea37feacdbc77357a59ca8c48043.jpg,Pityriasis rubra pilaris,Pityriasis rosea,1,Pityriasis rosea
+b693828bd104b6ed8be393d2e516ed50.jpg,Other,Atopic dermatitis,2,Other
+ff7c38d6396e526b62ae13c379512517.jpg,Lyme disease,Lyme disease,1,Lyme disease
+65a2c590838cd1c7229c36c270adc522.jpg,CTCL,CTCL,4,CTCL
+266ef36ae1d1898e3c88069c22a9d001.jpg,Secondary syphilis,Pityriasis rubra pilaris,4,Secondary syphilis
+1ce84e21bb1dba0344d301acc05e9f37.jpg,Pityriasis rosea,Pityriasis rosea,6,Pityriasis rosea
+cff0b65e459ff1fdb5d2654519eab4a7.jpg,Pityriasis rosea,Pityriasis rosea,2,Pityriasis rosea
+d555e5fc8d7df401240ce04d2357ec1b.jpg,Lyme disease,CTCL,6,Lyme disease
+4c6297ecc14ea1acd3fe45304b98a8ab.jpg,CTCL,CTCL,2,CTCL
+0ab54547ce4e171cb06885fcf87d978b.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,4,Pityriasis rubra pilaris
+af38e5a05a156f35f425d4ed75f453cc.jpg,CTCL,CTCL,1,CTCL
+c1f9889714255e1240600df7ae936403.jpg,Secondary syphilis,Pityriasis rubra pilaris,6,Secondary syphilis
+fe369803dcca197d7e053f1a72a7b1c2.jpg,Lyme disease,Lyme disease,1,Lyme disease
+91a11c97cd7d3aa6b45d1438c32e8b0b.jpg,Dermatomyositis,Other,6,Other
+cda26b644e6a8de58231a8e1d748da70.jpg,CTCL,CTCL,6,CTCL
+3c4f10c630e4fd8114204742a5fbcd79.jpg,Atopic dermatitis,Lyme disease,1,Atopic dermatitis
+9dccb89ae8b15e7b9063318022608d70.jpg,Other,Dermatomyositis,2,Other
+f3ac633073ee2050f4beb876d70ccc64.jpg,Pityriasis rubra pilaris,Pityriasis rosea,2,Pityriasis rosea
+6d8f0a687424dd4b189efb226b8e2b9f.jpg,Pityriasis rubra pilaris,Pityriasis rubra pilaris,2,Pityriasis rubra pilaris
+6eee1839627839064bcb4785f5882a7a.jpg,Pityriasis rosea,Atopic dermatitis,3,Pityriasis rosea
+1f8a764acfe2257617abd61833fbea83.jpg,Pityriasis rosea,Lyme disease,2,Lyme disease
+9298a79b4bc0eabc065c02002ed06b63.jpg,Pityriasis rosea,Pityriasis rosea,3,Pityriasis rosea
+274fcc8858e2524666aac80c117c1eae.jpg,CTCL,Dermatomyositis,3,CTCL
+b0a821a90fc14fb2996e9717ee37ded1.jpg,Other,Pityriasis rubra pilaris,2,Other
+5e23bc3d33cca0f6937264afd2182127.jpg,Lichen planus,Lichen planus,1,Lichen planus
+4a09f1daccce05916e8715d76231bfee.jpg,CTCL,CTCL,2,CTCL
+e0751f70a2951820fa53eef59c594bd5.jpg,Lyme disease,Lichen planus,4,Lyme disease

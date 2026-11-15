@@ -1,0 +1,1240 @@
+# Full diff of every change to groh2024_repro_kit since the baseline (fe9e009 = toolkit as received).
+# Note: the toolkit was originally commented in Chinese. For readability, the Chinese comments and strings
+# in these diffs have been translated into English; code and numbers are unchanged. The verbatim diffs are
+# in the repository history: git log -p fe9e009..7947102
+
+commit 794710296859c67e8dfb4ce06a6c3609288dd3ca
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 21:10:03 2026 -0500
+
+    wizard_of_oz: add --exact, report 8-main accuracy, resolve the '84% vs 81%' note
+    
+    With independent Bernoulli(0.65) flips the realised flip share varies a lot:
+    on the author's real control predictions seed 0 flips only 111/193 (57.5%)
+    -> 77.4%, while 1000 re-runs span 78.0-85.1% (95%). --exact flips exactly
+    round(65% x wrong) predictions (125/193 -> 81.3%; 8 main conditions 84.5%).
+    Default behaviour unchanged. Output now also shows accuracy on the 8 main
+    conditions. Docstring: the author's data shows the treatment DLS is 81.8% on
+    all labelled images and 84.2% on the 8 main conditions, so the paper's 84%
+    refers to the 8 main conditions (see logs/step7_woz/woz_reproduce.py).
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/dls/wizard_of_oz.py b/dls/wizard_of_oz.py
+index 9cbe316..18461ff 100644
+--- a/dls/wizard_of_oz.py
++++ b/dls/wizard_of_oz.py
+@@ -2,16 +2,19 @@
+ Build the "enhanced AI" (treatment DLS) — the paper's Wizard-of-Oz method
+ 
+ What the paper did: pick 65% of the control AI's wrong predictions at random and change them to the correct answer,
+-which raises top-1 accuracy from 47% to 84%. This "pretend-stronger" AI simulates a future, more accurate system;
++which raises top-1 accuracy from 47% to about 84%. This "pretend-stronger" AI simulates a future, more accurate system;
+ the aim is not to evaluate the AI itself but to see how a more accurate AI affects physicians' decisions.
+ 
+-Do the arithmetic: 47% + (1 − 47%) × 65% ≈ 81%, but the paper reports 84%; the paper does not explain this gap of about 3 percentage points,
+-which makes a small "details worth questioning" example for the presentation (e.g. it might be due to sampling randomness or the 9-class scoring; this is speculation).
++About the 84%: 47% + (1 − 47%) × 65% ≈ 81%. Checked against the authors' data (logs/step7_woz/woz_reproduce.py):
++the enhanced AI scores 81.8% on all 363 labelled images and 84.2% on the 8 main conditions.
++So the paper's 84% is the accuracy on the 8 main conditions; there is no unexplained gap.
+ 
+-The input CSV needs two columns: label (true 9-class label) and pred (the control AI's prediction); an fst column is optional.
++The input CSV needs two columns: label (true 9-class label; write Other for the "other" class) and pred (the control AI's prediction); an fst column is optional.
+ Usage:
+-  python dls/wizard_of_oz.py --pred dls/checkpoint/val_predictions.csv --out dls/treatment_predictions.csv
+-  python dls/wizard_of_oz.py --demo              # demo on random data: 47% → about 82%
++  python dls/wizard_of_oz.py --pred predictions.csv --out enhanced.csv     # flip each wrong prediction to correct independently with probability 65%
++  python dls/wizard_of_oz.py --pred predictions.csv --exact                # flip exactly 65% of the wrong predictions (results don't swing with the seed)
++  python dls/wizard_of_oz.py --demo                                        # no data needed: demo on random data
++The authors' real control-AI predictions are in logs/step7_woz/woz_input.csv (generated from the authors' data by woz_reproduce.py).
+ """
+ from __future__ import annotations
+ 
+@@ -22,21 +25,32 @@ import pandas as pd
+ 
+ 
+ def enhance(df: pd.DataFrame, flip_rate: float = 0.65, seed: int = 0,
+-            label_col: str = "label", pred_col: str = "pred") -> pd.Series:
+-    """Return the enhanced predictions: a random flip_rate share of the wrong predictions is changed to the correct answer; correct predictions are unchanged."""
++            label_col: str = "label", pred_col: str = "pred", exact: bool = False) -> pd.Series:
++    """Return the enhanced predictions: a flip_rate share of the wrong predictions is changed to the correct answer; correct predictions are unchanged.
++
++    exact=False: each wrong prediction is corrected independently with probability flip_rate (the number corrected varies with the seed);
++    exact=True:  exactly round(flip_rate × n_wrong) are corrected; only which ones is random."""
+     rng = np.random.default_rng(seed)
+-    wrong = df[pred_col] != df[label_col]
+-    flip = wrong & (rng.random(len(df)) < flip_rate)
++    wrong = (df[pred_col] != df[label_col]).to_numpy()
++    if exact:
++        idx = np.flatnonzero(wrong)
++        chosen = rng.choice(idx, size=int(round(flip_rate * len(idx))), replace=False)
++        flip = np.zeros(len(df), dtype=bool)
++        flip[chosen] = True
++    else:
++        flip = wrong & (rng.random(len(df)) < flip_rate)
+     return df[pred_col].where(~flip, df[label_col])
+ 
+ 
+ def report(df, pred_col, fst_col="fst"):
+-    acc = (df[pred_col] == df["label"]).mean()
+-    s = f"{acc:.1%}"
++    ok = df[pred_col] == df["label"]
++    s = f"{ok.mean():.1%}"
+     if fst_col in df and df[fst_col].notna().any():
+         dark = pd.to_numeric(df[fst_col], errors="coerce") >= 5
+-        s += (f" (light FST1–4: {(df[pred_col] == df['label'])[~dark].mean():.1%}, "
+-              f"dark FST5–6: {(df[pred_col] == df['label'])[dark].mean():.1%})")
++        s += f" (light FST1–4: {ok[~dark].mean():.1%}, dark FST5–6: {ok[dark].mean():.1%})"
++    main8 = df["label"].astype(str).str.lower() != "other"
++    if (~main8).any():
++        s += f"; 8 main conditions: {ok[main8].mean():.1%}"
+     return s
+ 
+ 
+@@ -46,6 +60,7 @@ def main():
+     ap.add_argument("--out", default="treatment_predictions.csv")
+     ap.add_argument("--flip-rate", type=float, default=0.65)
+     ap.add_argument("--seed", type=int, default=0)
++    ap.add_argument("--exact", action="store_true", help="correct exactly a flip-rate share of the wrong predictions (default: each one independently at random)")
+     ap.add_argument("--demo", action="store_true", help="no data needed: demo on 364 randomly generated images")
+     a = ap.parse_args()
+ 
+@@ -60,10 +75,15 @@ def main():
+     else:
+         df = pd.read_csv(a.pred)
+ 
+-    df["pred_treatment"] = enhance(df, a.flip_rate, a.seed)
++    df["pred_treatment"] = enhance(df, a.flip_rate, a.seed, exact=a.exact)
++    n_wrong = int((df.pred != df.label).sum())
++    n_flip = int(((df.pred != df.label) & (df.pred_treatment == df.label)).sum())
++    p = (df.pred == df.label).mean()
+     print(f"Control AI accuracy:  {report(df, 'pred')}")
+-    print(f"Enhanced AI accuracy: {report(df, 'pred_treatment')}   ({a.flip_rate:.0%} of the wrong predictions changed to correct)")
+-    print(f"Expected: p + (1 − p) × {a.flip_rate} = {(df.pred == df.label).mean() + (1 - (df.pred == df.label).mean()) * a.flip_rate:.1%}")
++    print(f"Enhanced AI accuracy: {report(df, 'pred_treatment')}")
++    print(f"   {n_wrong} wrong predictions, {n_flip} corrected ({n_flip / max(n_wrong, 1):.1%};"
++          f"{'exact share' if a.exact else 'each independently at random, seed ' + str(a.seed)})")
++    print(f"Expected: p + (1 − p) × {a.flip_rate} = {p + (1 - p) * a.flip_rate:.1%}")
+     if not a.demo and a.pred:
+         df.to_csv(a.out, index=False)
+         print(f"Wrote {a.out}")
+
+commit 563b3d7024768d099912adaedd83318d87a0fac3
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 20:58:33 2026 -0500
+
+    fetch_f17k_images: 'other' demo images come from the paper's 36 auxiliary diseases
+    
+    In the paper the 80 non-main images are the 36 auxiliary diseases, and an
+    'Other' DLS prediction is shown as a random auxiliary disease. Demo 'other'
+    images are now drawn from those diseases (28 of 35 non-acne ones are still
+    downloadable from F17k), one image per disease.
+    New demo set: acne attention check + 7 main diseases (23 images) + 6 auxiliary.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/demo_app/data/images.csv b/demo_app/data/images.csv
+index e5f1909..3083c62 100644
+--- a/demo_app/data/images.csv
++++ b/demo_app/data/images.csv
+@@ -23,9 +23,9 @@ f17k_020,b33801b74be02c85e6d9683331bc981a.jpg,Pityriasis rubra pilaris,5,0,,Fitz
+ f17k_021,922c6e400e802606b03a7b9fc4731508.jpg,Pityriasis rubra pilaris,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+ f17k_022,bd65806b6a90d0648cee71904fad90f7.jpg,Pityriasis rubra pilaris,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+ f17k_023,401b49c4dbda1a21967d2e27627e4756.jpg,Pityriasis rubra pilaris,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+-f17k_024,055e1c055b30cd061a01440a5c1ea26c.jpg,Syringoma,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+-f17k_025,a6652385250358e2cc805181be1123f9.jpg,Porokeratosis actinic,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+-f17k_026,53f7dbf331f5eee075a7ad7d14eb6733.jpg,Squamous cell carcinoma,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+-f17k_027,4aa66108547ab25b842ecf578cde7675.jpg,Papilomatosis confluentes and reticulate,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+-f17k_028,04437cd3092a8922dc9af8100d350431.jpg,Kaposi sarcoma,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+-f17k_029,c4b436c20c971661c945867ea0b5dbda.jpg,Papilomatosis confluentes and reticulate,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_024,28063f4cddd71f3bfb4a5ff368fc3c6a.jpg,Nematode infection,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_025,44b690a615cb7d7e758cf579cb5f5f7b.jpg,Scabies,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_026,a02e6b04eded5ce846a4110b2f46176b.jpg,Lupus erythematosus,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_027,d549fced4cbe4c66d4aae08197554e5a.jpg,Acanthosis nigricans,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_028,56ddef8a71d3d96060711068a401c1d7.jpg,Erythema elevatum diutinum,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_029,104df96a95a6857feaec71b6dab93d9f.jpg,Tungiasis,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+diff --git a/dls/fetch_f17k_images.py b/dls/fetch_f17k_images.py
+index 1cd99d8..d99f381 100644
+--- a/dls/fetch_f17k_images.py
++++ b/dls/fetch_f17k_images.py
+@@ -32,7 +32,7 @@ import pandas as pd
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT))
+-from common.diseases import MAIN8, matches  # noqa: E402
++from common.diseases import AUXILIARY, MAIN8, matches  # noqa: E402
+ 
+ # Fitzpatrick17k labels are noisy. dermaamin.com image URLs contain the source atlas's own diagnosis folder name;
+ # e.g. of the 128 images labelled "lyme disease", 40 come from the erytrasma (erythrasma) folder,
+@@ -224,10 +224,15 @@ def main():
+         if h:
+             cand = keep_consistent(dfk[dfk.label.isin(h)], lambda r, d=dis: d, check, dis)
+             groups.append((dis, interleave(cand, a.seed), a.per_class, 0))
+-    others = dfk[~dfk.label.isin(main_labels) & ~dfk.label.str.lower().str.contains("acne", na=False)]
++    # In the paper, all images outside the 8 main conditions (80) come from the 36 auxiliary diseases; when the AI predicts "Other" it also suggests one of these 36 at random.
++    # So "other diseases" are drawn only from these 36 (those found in F17k); acne is already the attention-check image and is not reused.
++    aux_of = {l: aux for aux in AUXILIARY if aux != "Acne"
++              for l in labels if l not in main_labels and "acne" not in l.lower() and matches(l, aux)}
++    others = dfk[dfk.label.isin(aux_of)]
+     if a.n_other and not others.empty:
+-        pool = others.sample(min(len(others), a.n_other * 20), random_state=a.seed)   # sample a candidate pool first, then check it, to avoid fuzzy-matching all 16k rows
+-        pool = keep_consistent(pool, lambda r: r.label, check, "other diseases (candidate pool)")
++        # At most 1 image per auxiliary disease, covering as many diseases as possible; sample a candidate pool first, then check it
++        pool = others.sample(frac=1, random_state=a.seed).drop_duplicates("label").head(a.n_other * 4)
++        pool = keep_consistent(pool, lambda r: aux_of[r.label], check, "auxiliary diseases (candidate pool)")
+         groups.append(("Other", pool, a.n_other, 0))
+ 
+     if a.dry_run:
+@@ -242,7 +247,7 @@ def main():
+     got, short = [], []
+     for dis, cand, n, att in groups:
+         res = fetch_quota(cand, n, img_dir, a.workers)
+-        name = res.label.str.capitalize() if dis == "Other" else dis
++        name = res.label.map(aux_of) if dis == "Other" else dis
+         got.append(res.assign(disease=name, attention_check=att))
+         if len(res) < n:
+             short.append(f"{dis} ({len(res)}/{n})")
+
+commit f0b8e5ad5a05de4b7c8cd9bd213f3c2a1e78ee63
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 20:58:33 2026 -0500
+
+    demo_app: simulate DLS accuracy by quota instead of independent coin flips
+    
+    Without real model predictions each image's control prediction was an
+    independent Bernoulli(0.47), and Wizard-of-Oz flips were Bernoulli(0.65).
+    On a 29-image demo set that gave 38% / 66% instead of 47% / ~81%.
+    Now exactly round(47% x n) images are predicted correctly (9-class, as in the
+    paper) and exactly round(65%) of the wrong ones are flipped, chosen by a
+    deterministic per-image hash, so every participant still sees the same
+    suggestion for the same image. Real predictions (dls_pred_control) still win.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/demo_app/app.py b/demo_app/app.py
+index 4878294..6c79968 100644
+--- a/demo_app/app.py
++++ b/demo_app/app.py
+@@ -68,28 +68,46 @@ def _to9(label: str) -> str:
+     return next((k for k in MAIN8 if matches(label, k)), "Other")
+ 
+ 
++def _is_attention(r: dict) -> bool:
++    return str(r.get("attention_check", "0")).strip() in ("1", "true", "True")
++
++
+ def load_images() -> list[dict]:
+     with open(IMAGES_CSV, encoding="utf-8-sig", newline="") as f:
+         rows = list(csv.DictReader(f))
+     classes = list(MAIN8) + ["Other"]
+-    out = []
++    # Images without real model predictions: simulate exactly by quota rather than an independent coin flip per image.
++    # With few images, independent draws vary a lot (e.g. 38% on 29 images); the quota guarantees exactly 47% are predicted correctly (9 classes).
++    sim = sorted((r["image_id"].strip() for r in rows
++                  if not (r.get("dls_pred_control") or "").strip() and not _is_attention(r)),
++                 key=lambda i: _u(i + "|ctrl"))
++    sim_correct = set(sim[:round(CONTROL_ACC * len(sim))])
++    preds = {}
+     for r in rows:
+-        iid, disease = r["image_id"].strip(), r["disease"].strip()
+-        true9 = _to9(disease)
++        iid, true9 = r["image_id"].strip(), _to9(r["disease"].strip())
+         pred = (r.get("dls_pred_control") or "").strip()
+         if pred:
+             pred = _to9(pred)                                   # real model prediction (written by dls/predict.py)
+-        elif _u(iid + "|ctrl") < CONTROL_ACC:
+-            pred = true9                                        # otherwise simulate at 47% accuracy
++        elif iid in sim_correct or _is_attention(r):
++            pred = true9                                        # otherwise simulate with the 47% quota
+         else:
+             wrong = [c for c in classes if c != true9]
+             pred = wrong[int(_u(iid + "|wrong") * len(wrong))]
+-        pred_t = true9 if (pred != true9 and _u(iid + "|woz") < FLIP) else pred
++        preds[iid] = (true9, pred)
++    # Wizard of Oz: change exactly 65% (by quota) of the wrong predictions to the correct answer → 47% + 53% × 65% ≈ 81%
++    wrong_ids = sorted((i for i, (t, p) in preds.items() if p != t), key=lambda i: _u(i + "|woz"))
++    flipped = set(wrong_ids[:round(FLIP * len(wrong_ids))])
++    out = []
++    for r in rows:
++        iid, disease = r["image_id"].strip(), r["disease"].strip()
++        true9, pred = preds[iid]
++        pred_t = true9 if iid in flipped else pred
+         aux = AUXILIARY[int(_u(iid + "|aux") * len(AUXILIARY))]  # when predicting "Other", suggest one of the 36 auxiliary diseases at random
+         file = (r.get("file") or "").strip()
+         out.append({
+             "image_id": iid, "disease": disease, "fst": int(float(r.get("fst") or 0) or 0),
+-            "attention": str(r.get("attention_check", "0")).strip() in ("1", "true", "True"),
++            "attention": _is_attention(r),
++            "pred9": {"control": pred, "treatment": pred_t},    # 9-class prediction (the basis the paper uses for AI accuracy)
+             "file": file if file and (IMG_DIR / file).exists() else "",
+             "credit": r.get("credit", ""),
+             "suggestion": {"control": aux if pred == "Other" else pred,
+
+commit 2e3571324ce77c802d6b4dee341085e1567816ca
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 20:55:56 2026 -0500
+
+    fetch_f17k_images: skip dead image hosts and fill each class quota; demo set downloaded
+    
+    dermaamin.com moved its images: old F17k URLs now 301 -> 404, so 12,631 of 16,577
+    F17k images (77%) cannot be downloaded. Demo mode now probes each host first
+    and skips dead ones, orders candidates dark/light alternately, and keeps trying
+    candidates until each class quota is met.
+    
+    Result (images.csv): 30 public images from atlasdermatologico.com.br -
+    1 acne attention-check image, CTCL/DM/LP/PR/PRP x4, atopic dermatitis x2 and
+    Lyme x1 (all that remain downloadable), 6 other conditions. Secondary syphilis
+    has no F17k label. Image files are not committed (CC BY-NC-SA 3.0, re-downloadable).
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/demo_app/data/images.csv b/demo_app/data/images.csv
+index 37be4d7..e5f1909 100644
+--- a/demo_app/data/images.csv
++++ b/demo_app/data/images.csv
+@@ -1,31 +1,31 @@
+ image_id,file,disease,fst,attention_check,dls_pred_control,credit
+-demo_000,,Acne,5,1,,
+-demo_001,,Atopic dermatitis,2,0,,
+-demo_002,,Atopic dermatitis,4,0,,
+-demo_003,,Atopic dermatitis,6,0,,
+-demo_004,,CTCL,1,0,,
+-demo_005,,CTCL,3,0,,
+-demo_006,,CTCL,5,0,,
+-demo_007,,Dermatomyositis,2,0,,
+-demo_008,,Dermatomyositis,5,0,,
+-demo_009,,Dermatomyositis,6,0,,
+-demo_010,,Lyme disease,1,0,,
+-demo_011,,Lyme disease,3,0,,
+-demo_012,,Lyme disease,5,0,,
+-demo_013,,Lichen planus,2,0,,
+-demo_014,,Lichen planus,4,0,,
+-demo_015,,Lichen planus,6,0,,
+-demo_016,,Pityriasis rosea,1,0,,
+-demo_017,,Pityriasis rosea,3,0,,
+-demo_018,,Pityriasis rosea,5,0,,
+-demo_019,,Pityriasis rubra pilaris,2,0,,
+-demo_020,,Pityriasis rubra pilaris,4,0,,
+-demo_021,,Pityriasis rubra pilaris,6,0,,
+-demo_022,,Secondary syphilis,3,0,,
+-demo_023,,Secondary syphilis,5,0,,
+-demo_024,,Secondary syphilis,6,0,,
+-demo_025,,Psoriasis,3,0,,
+-demo_026,,Vitiligo,5,0,,
+-demo_027,,Sarcoidosis,6,0,,
+-demo_028,,Seborrheic dermatitis,2,0,,
+-demo_029,,Granuloma annulare,4,0,,
++f17k_000,1d0c3ae7936229f929d3d7d3216f8162.jpg,Acne,5,1,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_001,5eb9e332b83802ac60a82f9b39cfc41d.jpg,Atopic dermatitis,6,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_002,5b63fb8bb8d8f41eb15f5c7f294de0b6.jpg,Atopic dermatitis,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_003,9163c0dc32069e063ef96a82941cccb3.jpg,CTCL,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_004,96004967206f290b58a07554103b46df.jpg,CTCL,2,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_005,50bb16c1bfa029e80a55ce64149f3338.jpg,CTCL,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_006,a8558bbb85a4e1854e2e0d581de9e886.jpg,CTCL,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_007,8241eef01508124031566d00e2d452e5.jpg,Dermatomyositis,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_008,aafc091486c0b29dd05d399e88bb96b8.jpg,Dermatomyositis,2,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_009,0cecfe8aa964b75bfd8ab616fbf5538b.jpg,Dermatomyositis,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_010,1f00d2c15eaae750c70f5b93035a5c0c.jpg,Dermatomyositis,2,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_011,64d88a9aba7718df1ff3a07f6e675493.jpg,Lichen planus,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_012,c8bc376edcfe3858d466b543b8995e7b.jpg,Lichen planus,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_013,433100113d3ee62e2339b78e28f1934c.jpg,Lichen planus,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_014,bc0da2c3d8c2504c33cee7c968be2112.jpg,Lichen planus,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_015,6b3d128fa86fc86273d6146ea32149be.jpg,Lyme disease,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_016,a138d33b43cd6ebc926c72444f05c260.jpg,Pityriasis rosea,6,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_017,52868595e8528ee060c008833304c0f2.jpg,Pityriasis rosea,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_018,0066264501f73b1db09b3e2aa4dac0a0.jpg,Pityriasis rosea,6,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_019,67df381b4828feddef55b2fe4f55108a.jpg,Pityriasis rosea,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_020,b33801b74be02c85e6d9683331bc981a.jpg,Pityriasis rubra pilaris,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_021,922c6e400e802606b03a7b9fc4731508.jpg,Pityriasis rubra pilaris,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_022,bd65806b6a90d0648cee71904fad90f7.jpg,Pityriasis rubra pilaris,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_023,401b49c4dbda1a21967d2e27627e4756.jpg,Pityriasis rubra pilaris,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_024,055e1c055b30cd061a01440a5c1ea26c.jpg,Syringoma,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_025,a6652385250358e2cc805181be1123f9.jpg,Porokeratosis actinic,3,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_026,53f7dbf331f5eee075a7ad7d14eb6733.jpg,Squamous cell carcinoma,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_027,4aa66108547ab25b842ecf578cde7675.jpg,Papilomatosis confluentes and reticulate,5,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_028,04437cd3092a8922dc9af8100d350431.jpg,Kaposi sarcoma,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
++f17k_029,c4b436c20c971661c945867ea0b5dbda.jpg,Papilomatosis confluentes and reticulate,4,0,,Fitzpatrick17k (CC BY-NC-SA 3.0) · atlasdermatologico.com.br
+diff --git a/dls/fetch_f17k_images.py b/dls/fetch_f17k_images.py
+index 30a8fcc..1cd99d8 100644
+--- a/dls/fetch_f17k_images.py
++++ b/dls/fetch_f17k_images.py
+@@ -113,6 +113,56 @@ def fetch_all(plan: pd.DataFrame, out_dir: Path, workers: int = 8) -> pd.Series:
+     return pd.Series(ok, index=plan.index)
+ 
+ 
++def host_of(url) -> str:
++    m = re.search(r"https?://(?:www\.)?([^/]+)/", str(url))
++    return m.group(1) if m else ""
++
++
++def live_hosts(df: pd.DataFrame, n_probe: int = 3, seed: int = 0) -> set[str]:
++    """Try a few downloads from each image host (into memory only, not saved); a host where every attempt fails is treated as dead.
++    Example: after a redesign of dermaamin.com its old image URLs go 301 → 404, so 77% of the F17k images cannot be downloaded."""
++    hosts = df.url.map(host_of)
++    alive = set()
++    for h in sorted(hosts.unique()):
++        sample = df[hosts == h].sample(min(n_probe, int((hosts == h).sum())), random_state=seed)
++        ok = False
++        for u in sample.url:
++            try:
++                req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (classroom demo)"})
++                with urllib.request.urlopen(req, timeout=20) as r:
++                    ok = len(r.read()) >= 2000
++            except Exception:                                  # noqa: BLE001
++                ok = False
++            if ok:
++                break
++        print(f"  {h:<28} {'reachable' if ok else 'dead (skipped)'}")
++        if ok:
++            alive.add(h)
++    return alive
++
++
++def interleave(df: pd.DataFrame, seed: int) -> pd.DataFrame:
++    """Order the candidates alternating dark, light (dark first); downloads fill the quota in this order, aiming for half dark and half light."""
++    dark = df[df.fst.between(5, 6)].sample(frac=1, random_state=seed)
++    light = df[df.fst.between(1, 4)].sample(frac=1, random_state=seed)
++    order = []
++    for i in range(max(len(dark), len(light))):
++        order += [x.iloc[[i]] for x in (dark, light) if i < len(x)]
++    return pd.concat(order) if order else df.head(0)
++
++
++def fetch_quota(cands: pd.DataFrame, n: int, out_dir: Path, workers: int, max_try: int = 40) -> pd.DataFrame:
++    """Download candidates in order, in batches, until n succeed or max_try have been tried (a dead link is replaced by the next candidate)."""
++    got, step = [], max(n, 4)
++    for start in range(0, min(len(cands), max_try), step):
++        batch = cands.iloc[start:start + step]
++        ok = fetch_all(batch, out_dir, workers)
++        got.append(batch[ok.values])
++        if sum(map(len, got)) >= n:
++            break
++    return pd.concat(got).head(n) if got else cands.head(0)
++
++
+ def main():
+     ap = argparse.ArgumentParser(description="Download Fitzpatrick17k images")
+     ap.add_argument("--csv", required=True, help="fitzpatrick17k.csv")
+@@ -159,36 +209,49 @@ def main():
+ 
+     # ---------------- demo mode
+     dfk = df[df.fst.between(1, 6)]
+-    plan = []
++    if not a.dry_run:
++        print("\nChecking whether the image hosts are still reachable:")
++        alive = live_hosts(dfk, seed=a.seed)
++        dfk = dfk[dfk.url.map(host_of).isin(alive)]
+     if check:
+         print("\nChecking F17k labels against image URLs (dropping images whose source-atlas folder contradicts the label):")
++    # (disease name, candidate images, number needed, is attention-check image)
++    groups = []
+     acne = dfk[dfk.label.str.lower().str.contains("acne", na=False)]
+     acne = keep_consistent(acne, lambda r: "Acne", check, "Acne (attention check)")
+-    if not acne.empty:                                         # attention-check image (the paper used an acne image)
+-        plan.append(acne.sort_values("fst", ascending=False).head(1).assign(disease="Acne", attention_check=1))
++    groups.append(("Acne", acne.sort_values("fst", ascending=False), 1, 1))   # paper: the first image is always the acne image
+     for dis, h in hits.items():
+         if h:
+             cand = keep_consistent(dfk[dfk.label.isin(h)], lambda r, d=dis: d, check, dis)
+-            plan.append(pick(cand, a.per_class, a.seed).assign(disease=dis, attention_check=0))
++            groups.append((dis, interleave(cand, a.seed), a.per_class, 0))
+     others = dfk[~dfk.label.isin(main_labels) & ~dfk.label.str.lower().str.contains("acne", na=False)]
+     if a.n_other and not others.empty:
+         pool = others.sample(min(len(others), a.n_other * 20), random_state=a.seed)   # sample a candidate pool first, then check it, to avoid fuzzy-matching all 16k rows
+         pool = keep_consistent(pool, lambda r: r.label, check, "other diseases (candidate pool)")
+-        o = pool.head(a.n_other)
+-        plan.append(o.assign(disease=o.label.str.capitalize(), attention_check=0))
+-    plan = pd.concat(plan, ignore_index=True)
+-    print(f"\nPlanning to download {len(plan)} demo images")
++        groups.append(("Other", pool, a.n_other, 0))
++
+     if a.dry_run:
+-        print(plan[["disease", "label", "fst", "url"]].to_string(index=False))
++        print("\nDownload plan (first few candidates per group; dead links are replaced by the next candidate during download):")
++        for dis, cand, n, att in groups:
++            show = cand.head(n)
++            for r in show.itertuples(index=False):
++                print(f"  {dis:<26} FST{int(r.fst)}  {r.label:<28} {r.url}")
+         return
+ 
+     img_dir = ROOT / "demo_app" / "static" / "images"
+-    ok = fetch_all(plan, img_dir, a.workers)
++    got, short = [], []
++    for dis, cand, n, att in groups:
++        res = fetch_quota(cand, n, img_dir, a.workers)
++        name = res.label.str.capitalize() if dis == "Other" else dis
++        got.append(res.assign(disease=name, attention_check=att))
++        if len(res) < n:
++            short.append(f"{dis} ({len(res)}/{n})")
++    plan = pd.concat(got, ignore_index=True)
++    missing = [d for d, h in hits.items() if not h]
+     rows = [{"image_id": f"f17k_{i:03d}", "file": f"{r.md5hash}.jpg", "disease": r.disease, "fst": int(r.fst),
+              "attention_check": int(r.attention_check), "dls_pred_control": "",
+-             "credit": "Fitzpatrick17k (CC BY-NC-SA 3.0) · "
+-                       + re.sub(r"^https?://(www\.)?([^/]+)/.*$", r"\2", str(r.url))}
+-            for i, r in enumerate(plan[ok].itertuples(index=False))]
++             "credit": f"Fitzpatrick17k (CC BY-NC-SA 3.0) · {host_of(r.url)}"}
++            for i, r in enumerate(plan.itertuples(index=False))]
+     out = ROOT / "demo_app" / "data" / "images.csv"
+     if not rows:
+         print("Every download failed (network or source-site problem); the existing image list is left unchanged.")
+@@ -196,7 +259,11 @@ def main():
+     if out.exists():
+         out.rename(out.with_name(f"images_backup_{time.strftime('%Y%m%d_%H%M%S')}.csv"))
+     pd.DataFrame(rows).to_csv(out, index=False)
+-    print(f"Downloaded {len(rows)} / {len(plan)} → {out}")
++    print(f"\nDownloaded {len(rows)} images → {out}")
++    if short:
++        print("Not enough public images available: " + ", ".join(short))
++    if missing:
++        print("No matching label in Fitzpatrick17k: " + ", ".join(missing))
+     print("Next (optional): write predictions with the trained AI: python dls/predict.py --update-demo")
+ 
+ 
+
+commit e43803a37ef55c5a1ef295f6964599eefcad96fa
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 20:53:21 2026 -0500
+
+    fetch_f17k_images: drop F17k images whose source-atlas folder contradicts the label
+    
+    Fitzpatrick17k labels are noisy. dermaamin.com URLs carry the atlas's own
+    diagnosis folder, e.g. 40/128 'lyme disease' images come from 'erytrasma'
+    (erythrasma), 22/151 'dermatomyositis' from 'dermatophytie'; 'lichen planus'
+    includes 'trauma', 'dermatitis_artefacta', 'dermatitis_solaris'.
+    Demo mode now keeps only images whose folder is on a per-disease whitelist
+    (FOLDER_OK) and drops qc == '3 Wrongly labelled'; --no-label-check disables it.
+    Atlas URLs without a folder (atlasdermatologico) cannot be checked and are kept.
+    Credit line now names the source site for attribution.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/dls/fetch_f17k_images.py b/dls/fetch_f17k_images.py
+index a96f78a..30a8fcc 100644
+--- a/dls/fetch_f17k_images.py
++++ b/dls/fetch_f17k_images.py
+@@ -21,6 +21,7 @@
+ from __future__ import annotations
+ 
+ import argparse
++import re
+ import sys
+ import time
+ import urllib.request
+@@ -33,6 +34,48 @@ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT))
+ from common.diseases import MAIN8, matches  # noqa: E402
+ 
++# Fitzpatrick17k labels are noisy. dermaamin.com image URLs contain the source atlas's own diagnosis folder name;
++# e.g. of the 128 images labelled "lyme disease", 40 come from the erytrasma (erythrasma) folder,
++# and 22 of the "dermatomyositis" images come from dermatophytie (dermatophytosis).
++# demo mode keeps only images whose folder name matches the disease (the allow-list is spelled out below for review);
++# atlasdermatologico.com.br URLs carry no diagnosis, so they cannot be checked and are kept.
++FOLDER_OK = {
++    "Acne": {"acne_vulgaris"},
++    "Atopic dermatitis": {"eczema_atopic"},
++    "CTCL": {"mycosis-fongoide"},
++    "Dermatomyositis": {"dermatomyositis"},
++    "Lichen planus": {"lichen_planus", "eruptive_lichen_planus", "lichen_ruber"},
++    "Lyme disease": {"erythem_achronicum_migrans", "lyme-disease", "lime-disease", "erythema_migrans"},
++    "Pityriasis rosea": {"pityriasis_rosea"},
++    "Pityriasis rubra pilaris": {"pityriasis_rubra_pilaris"},
++}
++
++
++def url_folder(url) -> str:
++    m = re.search(r"/clinical-pic/[^/]+/([^/]+)/", str(url))
++    return m.group(1) if m else ""
++
++
++def label_consistent(row, disease: str) -> bool:
++    """Whether the source-atlas diagnosis in the image URL matches the disease; images marked "Wrongly labelled" in the F17k QC column are always excluded."""
++    if str(getattr(row, "qc", "")).startswith("3"):
++        return False
++    folder = url_folder(row.url)
++    if not folder:
++        return True
++    if disease in FOLDER_OK:
++        return folder in FOLDER_OK[disease]
++    return matches(re.sub(r"[-_]+", " ", folder), disease)
++
++
++def keep_consistent(df: pd.DataFrame, disease_of, check: bool, name: str) -> pd.DataFrame:
++    if not check or df.empty:
++        return df
++    ok = [label_consistent(r, disease_of(r)) for r in df.itertuples(index=False)]
++    kept = df[ok]
++    print(f"  label check {name:<26} kept {len(kept)}/{len(df)}")
++    return kept
++
+ 
+ def pick(df, n, seed):
+     """Aim for half light (FST1–4) and half dark (FST5–6) skin."""
+@@ -81,7 +124,10 @@ def main():
+     ap.add_argument("--workers", type=int, default=8)
+     ap.add_argument("--seed", type=int, default=7)
+     ap.add_argument("--dry-run", action="store_true", help="show the plan only; do not download")
++    ap.add_argument("--no-label-check", action="store_true",
++                    help="demo mode: do not check labels against image URLs (checked by default; see FOLDER_OK)")
+     a = ap.parse_args()
++    check = not a.no_label_check
+ 
+     df = pd.read_csv(a.csv)
+     fst_col = next(c for c in ("fitzpatrick_scale", "fitzpatrick", "fitzpatrick_centaur") if c in df)
+@@ -114,15 +160,21 @@ def main():
+     # ---------------- demo mode
+     dfk = df[df.fst.between(1, 6)]
+     plan = []
++    if check:
++        print("\nChecking F17k labels against image URLs (dropping images whose source-atlas folder contradicts the label):")
+     acne = dfk[dfk.label.str.lower().str.contains("acne", na=False)]
++    acne = keep_consistent(acne, lambda r: "Acne", check, "Acne (attention check)")
+     if not acne.empty:                                         # attention-check image (the paper used an acne image)
+         plan.append(acne.sort_values("fst", ascending=False).head(1).assign(disease="Acne", attention_check=1))
+     for dis, h in hits.items():
+         if h:
+-            plan.append(pick(dfk[dfk.label.isin(h)], a.per_class, a.seed).assign(disease=dis, attention_check=0))
++            cand = keep_consistent(dfk[dfk.label.isin(h)], lambda r, d=dis: d, check, dis)
++            plan.append(pick(cand, a.per_class, a.seed).assign(disease=dis, attention_check=0))
+     others = dfk[~dfk.label.isin(main_labels) & ~dfk.label.str.lower().str.contains("acne", na=False)]
+     if a.n_other and not others.empty:
+-        o = others.sample(min(a.n_other, len(others)), random_state=a.seed)
++        pool = others.sample(min(len(others), a.n_other * 20), random_state=a.seed)   # sample a candidate pool first, then check it, to avoid fuzzy-matching all 16k rows
++        pool = keep_consistent(pool, lambda r: r.label, check, "other diseases (candidate pool)")
++        o = pool.head(a.n_other)
+         plan.append(o.assign(disease=o.label.str.capitalize(), attention_check=0))
+     plan = pd.concat(plan, ignore_index=True)
+     print(f"\nPlanning to download {len(plan)} demo images")
+@@ -134,7 +186,8 @@ def main():
+     ok = fetch_all(plan, img_dir, a.workers)
+     rows = [{"image_id": f"f17k_{i:03d}", "file": f"{r.md5hash}.jpg", "disease": r.disease, "fst": int(r.fst),
+              "attention_check": int(r.attention_check), "dls_pred_control": "",
+-             "credit": "Fitzpatrick17k (CC BY-NC-SA 3.0)"}
++             "credit": "Fitzpatrick17k (CC BY-NC-SA 3.0) · "
++                       + re.sub(r"^https?://(www\.)?([^/]+)/.*$", r"\2", str(r.url))}
+             for i, r in enumerate(plan[ok].itertuples(index=False))]
+     out = ROOT / "demo_app" / "data" / "images.csv"
+     if not rows:
+
+commit 2c48153daaef5975be509853bfec7a0262208c04
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 20:51:14 2026 -0500
+
+    demo_app: survey answer options match the original experiment
+    
+    The 7 pre-survey questions (paper: 'We will first ask 7 brief survey questions')
+    now offer the original answer options, recovered from the author's data
+    (years_experience, patient_distribution, trouble_white/black_patients,
+    suffient_training). Physician-type values keep their short codes (BCD/PCP/...)
+    so the analysis is unchanged; 'Student' stays as a classroom-only option.
+    key_results.py: patient-mix moderator now recognises 'Mostly/All white patients'.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/analysis/key_results.py b/analysis/key_results.py
+index 462e125..fcab130 100644
+--- a/analysis/key_results.py
++++ b/analysis/key_results.py
+@@ -344,7 +344,9 @@ def t8_moderators(d):
+     x = d[d.physician_type == "PCP"].copy()
+     rows = []
+     if "patient_mix" in x and x.patient_mix.notna().any():
+-        x["white_mix"] = x.patient_mix.astype(str).str.lower().isin(["mostly white", "all white"]).astype(int)
++        # matches both the original survey options ("Mostly white patients", "All white patients")
++        # and the older short forms ("mostly white", "all white")
++        x["white_mix"] = x.patient_mix.astype(str).str.strip().str.lower().str.match(r"^(mostly|all) white").astype(int)
+         for g, lab in ((1, "Mostly/all white patients"), (0, "Other")):
+             r = diff_test(x[x.white_mix == g], "top3_correct", "dark", "participant_id")
+             rows.append({"PCP subgroup": lab, "top-3 dark−light": f"{pp(r['diff'])} ({fmt_p(r['p'])})",
+diff --git a/demo_app/templates/index.html b/demo_app/templates/index.html
+index 79a0db4..74ccef2 100644
+--- a/demo_app/templates/index.html
++++ b/demo_app/templates/index.html
+@@ -15,40 +15,52 @@
+     <label>1. What best describes you?
+       <select name="physician_type" required>
+         <option value="" disabled selected>Select…</option>
+-        <option value="BCD">Board-certified dermatologist</option>
+-        <option value="Resident">Dermatology resident</option>
+-        <option value="PCP">Primary care physician</option>
+-        <option value="Other">Other physician</option>
+-        <option value="Student">Not a clinician (student / other)</option>
++        {# Answer options below are the original experiment's options, recovered from the author's data
++           (ResearchBox 1802). Values stay as short codes so the analysis scripts keep working. #}
++        <option value="BCD">Board-certified/board-eligible dermatologist (MD or DO)</option>
++        <option value="Resident">Dermatology resident (MD or DO)</option>
++        <option value="PCP">PCP physician (MD or DO)</option>
++        <option value="Other">Other physician (MD or DO)</option>
++        <option value="Student">Not a clinician (student / other) — classroom-only option</option>
+       </select></label>
+ 
+     <label>2. How many years have you practiced medicine?
+       <select name="years">
+-        <option>Not applicable</option><option>0-2</option><option>2-10</option>
+-        <option>10-20</option><option>20+</option><option>in training</option>
++        <option value="" selected>----Please select one----</option>
++        <option>0-2</option><option>2-5</option><option>5-10</option><option>10-20</option><option>20+</option>
++        <option>Currently doing an internship</option><option>Currently doing a residency</option>
++        <option>Currently doing a fellowship</option>
++        <option>Not attending medical school and not practicing medicine</option>
+       </select></label>
+ 
+     <label>3. How would you describe the distribution of your patients' skin colors?
+       <select name="patient_mix">
+-        <option>not applicable</option><option>about equal</option><option>mostly white</option>
+-        <option>all white</option><option>mostly non-white</option><option>all non-white</option>
++        <option value="" selected>----Please select one----</option>
++        <option>All white patients</option><option>Mostly white patients</option>
++        <option>About an equal portion of patients with skin of color (non-white) and white patients</option>
++        <option>Mostly patients with skin of color (non-white)</option>
++        <option>All patients with skin of color (non-white)</option><option>Not applicable</option>
+       </select></label>
+ 
+     <label>4. How often do you find it difficult to diagnose skin disease in white patients?
+       <select name="difficulty_white">
+-        <option>not applicable</option><option>rarely</option><option>1 in 10 patients</option>
+-        <option>1 in 4 patients</option><option>1 in 2 patients</option>
++        <option value="" selected>----Please select one----</option>
++        <option>One in two patients (50%)</option><option>One in ten patients (10%)</option>
++        <option>One in one hundred patients (1%)</option>
++        <option>Less than one in one hundred of patients (&lt;1%)</option><option>Not Applicable</option>
+       </select></label>
+ 
+     <label>5. …and in non-white patients?
+       <select name="difficulty_nonwhite">
+-        <option>not applicable</option><option>rarely</option><option>1 in 10 patients</option>
+-        <option>1 in 4 patients</option><option>1 in 2 patients</option>
++        <option value="" selected>----Please select one----</option>
++        <option>One in two patients (50%)</option><option>One in ten patients (10%)</option>
++        <option>One in one hundred patients (1%)</option>
++        <option>Less than one in one hundred of patients (&lt;1%)</option><option>Not Applicable</option>
+       </select></label>
+ 
+     <label>6. Do you feel you received sufficient training for diagnosing skin diseases in patients with skin of color?
+       <select name="sufficient_training">
+-        <option>not applicable</option><option>yes</option><option>no</option>
++        <option value="" selected>----Please select one----</option><option>Yes</option><option>No</option>
+       </select></label>
+ 
+     <label>7. Which country do you live in?
+
+commit 45451d60199d83b62b7704a30146b4064eedc68a
+Author: Orange812 <178688857+Orange812@users.noreply.github.com>
+Date:   Wed Nov 11 20:50:28 2026 -0500
+
+    demo_app: autocomplete uses the author's 445 diagnosis options
+    
+    Paper (Methods, Experimental interface): 'predictive text based on 445 possible
+    diagnoses'. The replica had ~100 hand-picked names. The original list is
+    possible_options in cell 89 of the author's Analysis.ipynb (ResearchBox 1802,
+    CC BY 4.0); saved verbatim to common/dx_options_445.txt (442 unique).
+    Only the datalist changes; grading (matches/in_differential) is unchanged.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+diff --git a/common/diseases.py b/common/diseases.py
+index df907e5..46a2c2c 100644
+--- a/common/diseases.py
++++ b/common/diseases.py
+@@ -61,6 +61,28 @@ EXTRA_SUGGESTIONS = [
+ ALL_LABELS = list(MAIN8) + AUXILIARY + EXTRA_SUGGESTIONS
+ 
+ 
++def _load_suggestions() -> list[str]:
++    """Predictive text for the input box: prefer the 445 diagnosis names from the authors' original experiment (dx_options_445.txt).
++
++    Source: possible_options in cell 89 of Analysis.ipynb, ResearchBox #1802 (CC BY 4.0),
++    matching the paper's Methods ("predictive text based on 445 possible diagnoses"); the original list has 3 duplicates, leaving 442.
++    If the file is missing, fall back to the short list above. This affects only the predictive text, not grading."""
++    from pathlib import Path
++    p = Path(__file__).with_name("dx_options_445.txt")
++    if not p.exists():
++        return ALL_LABELS
++    seen, out = set(), []
++    for line in p.read_text(encoding="utf-8").splitlines():
++        s = line.strip()
++        if s and s not in seen:
++            seen.add(s)
++            out.append(s)
++    return out
++
++
++SUGGESTIONS = _load_suggestions()
++
++
+ def _norm(s: str) -> str:
+     s = (s or "").lower().strip()
+     s = s.replace("’", "'").replace("_", " ")
+diff --git a/common/dx_options_445.txt b/common/dx_options_445.txt
+new file mode 100644
+index 0000000..338a956
+--- /dev/null
++++ b/common/dx_options_445.txt
+@@ -0,0 +1,445 @@
++abscess
++acanthoma fissuratum
++acanthosis nigricans
++accessory nipple
++acne
++acne keloidalis
++acquired digital fibrokeratoma
++acral keratosis
++acral peeling skin syndrome
++acrocyanosis
++acrodermatitis atrophicans chronica
++acropustulosis of infancy
++actinic keratosis
++actinic granuloma
++acute generalised exanthematous pustulosis
++adnexal neoplasm
++adult onset still disease
++albinism
++allergic contact dermatitis
++alopecia areata
++alopecia mucinosa
++alopecia neurotica
++amyloidosis of skin
++anagen effluvium
++androgenetic alopecia
++anetoderma
++angina bullosa hemorrhagica
++angioedema
++angiofibroma
++angiokeratoma of skin
++angiolymphoid hyperplasia with eosinophilia
++angiosarcoma of skin
++animal bite - wound
++apocrine cystadenoma
++arsenical keratosis
++arterial ulcer
++arteriovenous malformation
++atopic dermatitis (eczema)
++eczema (atopic dermatitis)
++atrophic glossitis
++atrophoderma
++atrophoderma vermiculatum
++atypical nevus
++atypical fibroxanthoma of skin
++b-cell cutaneous
++lymphoma
++basal cell carcinoma
++beau's lines
++becker's nevus
++benign neoplasm of nail apparatus
++benign neural tumor
++benign salivary gland tumor
++blistering distal dactylitis
++blue sacral spot
++bowenoid papulosis
++deep fungal infection
++dental fistula
++dermatitis herpetiformis
++dermatofibroma
++dermatofibrosarcoma protuberans
++dermatomyositis
++dermatosis caused by lice
++dermoid cyst of skin
++desmoplastic trichoepithelioma
++diabetic dermopathy
++diabetic ulcer
++digital myxoid cyst
++digital mucous cyst
++dissecting cellulitis of scalp
++dowling-degos syndrome
++drug rash
++eccrine carcinoma of skin
++ecthyma
++ecthyma gangrenosum
++eczema
++edema bulla
++epidermal nevus
++epidermolysis bullosa
++erosive pustular dermatosis
++eruptive xanthoma
++erysipelas
++erythema ab igne
++erythema annulare centrifugum
++erythema dyschromicum perstans
++erythema elevatum diutinum
++erythema gyratum repens
++erythema marginatum
++erythema migrans (lyme)
++lyme (erythema migrans)
++erythema multiforme
++erythema nodosum
++erythrasma
++erythromelalgia
++erythromelanosis follicularis faciei et colli
++fat necrosis
++fibrofolliculoma
++flagellate erythema
++flegels disease
++flushing
++focal epithelial hyperplasia of skin
++folliculitis
++folliculitis decalvans
++fordyce spots
++foreign body
++foreign body reaction of the skin
++fox-fordyce disease
++frontal fibrosing alopecia
++ganglion cyst
++geographic tongue
++giant cell tumor
++ichthyosis
++idiopathic guttate hypomelanosis
++iga pemphigus
++impetigo
++incontinentia pigmenti
++induced hypopigmentation
++infected eczema
++infected skin ulcer
++inflammatory linear verrucous epidermal nevus
++inflicted skin lesions
++ingrown hair
++injection site disorder
++insect bite
++interstitial granulomatous dermatitis
++intertrigo
++inverted follicular keratosis
++irritant contact dermatitis
++juvenile xanthogranuloma
++kaposi's sarcoma of skin
++keratoderma
++keratolysis exfoliativa
++keratosis pilaris
++knuckle pads
++lentigo
++leprosy
++leukemia cutis
++leukocytoclastic vasculitis
++leukonychia
++leukoplakia of skin
++lichen nitidus
++lichen planopilaris
++lichen planus
++lichen sclerosus
++lichen spinulosus
++lichen striatus
++lichenoid keratosis
++lichenoid myxedema
++linear iga disease
++lipoatrophy
++lipodermatosclerosis
++lipoid proteinosis
++lipoma
++lipschütz ulcer
++livedo reticularis
++livedoid vasculopathy
++lobomycosis
++local infection of wound
++longitudinal melanonychia
++lymphadenopathy
++lymphangioma
++lymphedema
++lymphomatoid papulosis
++madarosis
++malignant cylindroma
++nail dystrophy due to trauma
++nasal polyp
++nasolabial dyssebacia
++necrobiosis lipoidica
++necrolytic acral erythema
++necrotizing fasciitis
++neuralgia paresthetica
++neutrophilic eccrine hidradenitis
++nevus anemicus
++nevus comedonicus
++nevus depigmentosus
++nevus lipomatosus cutaneous superficialis
++nevus of ito
++nevus of ota
++nevus sebaceous
++nevus spilus
++nodular vasculitis
++non-melanin pigmentation due to exogenous substance (disorder)
++notalgia paresthetica
++o/e - ecchymoses present
++ochronosis
++onychocryptosis
++onychogryphosis
++onycholysis
++onychomadesis
++onychomalacia
++onychomatricoma
++onychomycosis
++onychopapilloma
++onychorrhexis
++onychoschizia
++oral fibroma
++osteoma
++osteoma cutis
++otitis externa
++paget disease
++palisaded neutrophilic granulomatous dermatitis
++palmar pit
++papilloma of skin
++parapsoriasis
++paronychia
++pearly penile papules
++pemphigoid gestationis
++pemphigus foliaceus
++pemphigus paraneoplastica
++pemphigus vulgaris
++perforating dermatosis
++perichondritis of auricle
++perioral dermatitis
++periungual fibroma
++perleche
++phimosis
++photodermatitis
++phrynoderma
++piezogenic pedal papule
++rmsf - rocky mountain spotted fever
++radiation dermatitis
++raynaud's phenomenon
++relapsing polychondritis
++retention hyperkeratosis
++reticular erythematous
++mucinosis
++reticulate erythematous
++mucinosis
++reticulohistiocytosis
++rheumatoid nodule
++rhytides
++rosacea
++scc/sccis
++sjs/ten
++sk/isk
++scabies
++scar condition
++scleredema
++sclerodactyly
++sebaceous adenoma of skin
++sebaceous carcinoma
++sebaceous hyperplasia
++seborrheic dermatitis
++skin tag
++skin and soft tissue atypical mycobacterial infection
++skin atrophy
++skin changes due to malnutrition
++skin lesion in drug addict
++skin striae
++small plaque parapsoriasis
++small vessel thrombosis of skin
++sneddon-wilkinson disease
++stasis dermatitis
++subungual fibroma
++sweet syndrome
++symmetrical dyschromatosis of extremities
++secondary syphilis
++primary syphilis
++syphilis (secondary)
++syphilis (primary)
++tmep - telangiectasia macularis eruptiva perstans
++tattoo
++telangiectasia disorder
++telogen effluvium
++thrombophlebitis
++tinea
++tinea versicolor
++torus palatinus
++trachyonychia
++traction alopecia
++traumatic bulla
++traumatic ulcer
++triangular alopecia
++trichostasis spinulosa
++trichotillomania
++trigeminal trophic syndrome
++brachioradial pruritus
++breast cancer
++bullosis diabeticorum
++bullous pemphigoid
++burn of skin
++bursitis
++cafe au lait macule
++calcinosis cutis
++calciphylaxis cutis
++candida
++canker sore
++carotene pigmentation of skin
++cellulitis
++central centrifugal cicatricial alopecia
++chancroid
++chemical leukoderma
++chicken pox exanthem
++chilblain
++chondrodermatitis nodularis
++cicatricial pemphigoid
++clavus
++clear cell acanthoma
++clubbing of fingers
++collagenoma
++colloid milium
++comedone
++condyloma acuminatum
++confluent and reticulate papillomatosis
++congenital alopecia
++connective tissue nevus
++crohn disease of skin
++cutaneous t-cell lymphoma (ctcl)
++ctcl (cutaneous t-cell lymphoma)
++cutaneous capillary malformation
++cutaneous collagenous vasculopathy
++cutaneous larva migrans
++cutaneous leishmaniasis
++cutaneous lupus
++cutaneous lymphadenoma
++cutaneous metastasis
++cutaneous myiasis
++cutaneous neurofibroma
++cutaneous neuroma
++sarcoidosis
++cutaneous schistosomiasis
++cutaneous sporotrichosis
++cutis laxa
++cutis verticis gyrata
++cylindroma of skin
++cyst
++glomus tumour of skin
++gout
++graft versus host disease
++granular parakeratosis
++granuloma annulare
++granuloma faciale
++grover's disease
++hailey hailey disease
++hair nevus
++hair sinus
++hairy tongue
++half-and-half nail
++hand foot and mouth disease
++head lice
++hemangioma
++hematoma of skin
++hemorrhoid
++hemosiderin pigmentation of skin
++herpes simplex
++herpes zoster
++hidradenitis
++hirsutism
++hordeolum internum
++hyperhidrosis
++hypersensitivity
++hypertrichosis
++malignant eccrine spiradenoma
++mastocytoma
++mastocytosis
++median rhomboid glossitis
++melanin pigmentation due to exogenous substance
++melanocytic nevus
++melanoma
++melanotic macule
++melasma
++merkel cell carcinoma
++microcystic adnexal carcinoma
++milia
++miliaria
++molluscum contagiosum
++scleroderma
++morsicatio buccarum
++mucocele
++mucocutaneous venous malformation
++pigmented fungiform papillae
++pigmented purpuric eruption
++pilomatricoma
++pilonidal cyst
++pincer nail deformity
++pinkus tumor
++pitted keratolysis
++pityriasis alba
++pityriasis amiantacea
++pityriasis lichenoides
++pityriasis rosea
++pityriasis rotunda
++pityriasis rubra pilaris (prp)
++prp (pityriasis rubra pilaris)
++pleomorphic fibroma
++poikiloderma
++porokeratosis
++porphyria cutanea tarda
++post-inflammatory hyperpigmentation
++post-inflammatory hypopigmentation
++pressure ulcer
++pressure-induced dermatosis
++pretibial myxedema
++primary cutaneous sarcoma
++progressive macular hypomelanosis
++prurigo nodularis
++pruritic urticarial papules and plaques of pregnancy
++pseudocyst of auricle
++pseudolymphoma
++pseudopelade
++psoriasis
++psychogenic alopecia
++pterygium of nail
++puncture wound - injury
++purpura
++pyoderma gangrenosum
++pyogenic granuloma
++tripe palms
++tuberculosis of skin and subcutaneous tissue
++ulceration in behcet disease
++urticaria
++urticaria multiforme
++varicose veins of lower extremity
++venous stasis ulcer
++verruca vulgaris
++viral exanthem
++vitiligo
++warty dyskeratoma
++wells' syndrome
++wooly hair
++xanthoma
++xerosis
++yellow nail syndrome
++zoon's balanitis
++zosteriform reticulate hyperpigmentation
++neurotic excoriations
++stasis edema
++urticaria pigmentosa
++papilomatosis (confluentes and reticulate)
++confluent and reticulated papillomatosis
++fixed drug eruption
++tick bite
++factitial dermatitis
++stevens johnson syndrome
++cheilitis
++sarcoidosis
++tungiasis
++urticaria
++rhinophyma
++nematode infection
++lichen amyloidosis
++keloid
++drug eruption
++lichen simplex
++lupus erythematosus
+diff --git a/demo_app/app.py b/demo_app/app.py
+index 73a6aac..4878294 100644
+--- a/demo_app/app.py
++++ b/demo_app/app.py
+@@ -34,7 +34,7 @@ from flask import Flask, Response, redirect, render_template, request, send_file
+ BASE = Path(__file__).resolve().parent
+ ROOT = BASE.parent
+ sys.path.insert(0, str(ROOT))
+-from common.diseases import ALL_LABELS, AUXILIARY, MAIN8, canonical, in_differential, matches  # noqa: E402
++from common.diseases import AUXILIARY, MAIN8, SUGGESTIONS, canonical, in_differential, matches  # noqa: E402
+ 
+ DATA = BASE / "data"
+ IMG_DIR = BASE / "static" / "images"
+@@ -178,7 +178,7 @@ def trial():
+     im = BY_ID[st["order"][st["i"]]]
+     if request.method == "GET":
+         st["t0"] = time.time()
+-        return render_template("trial.html", im=im, k=st["i"] + 1, n=N_TRIALS, labels=ALL_LABELS,
++        return render_template("trial.html", im=im, k=st["i"] + 1, n=N_TRIALS, labels=SUGGESTIONS,
+                                is_bcd=st["survey"]["physician_type"] == "BCD")
+     f = request.form
+     dx = [f.get(f"dx{j}", "").strip() for j in (1, 2, 3)]

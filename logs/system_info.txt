@@ -1,0 +1,6 @@
+OS: macOS 15.7.5 (24G624)
+Arch: arm64
+Kernel: Darwin 24.6.0
+conda: conda 24.11.3
+Env: groh-orig (conda-forge python=3.9 + pip install -r work/ResearchBox 1802/Code/requirements.txt)
+Run date: 2026-11-11 19:51 EST
