@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Live results · Diagnosing Diagnosis{% endblock %}
+{% block head %}<meta http-equiv="refresh" content="10">{% endblock %}
+{% macro bar(cell, cls) -%}
+  {%- set v = cell[0] -%}
+  <span class="htrack"><span class="hbar {{ cls }}" style="width: {{ ((v or 0) * 100) | round(1) }}%"></span></span>
+  <span class="hval">{{ ((v * 100) | round | int) ~ '%' if v is not none else '—' }} <span class="muted">n={{ cell[1] }}</span></span>
+{%- endmacro %}
+{% block body %}
+<section class="dash">
+  <div class="dash-head">
+    <h1>Live class results</h1>
+    <p class="muted small">Refreshes every 10 s · attention-check image excluded · data file: {{ log_name }}</p>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><span class="kpi-n">{{ n_people }}</span><span class="kpi-l">participants</span></div>
+    <div class="kpi"><span class="kpi-n">{{ n_rows }}</span><span class="kpi-l">diagnoses</span></div>
+    {% for t, c in types.most_common() %}
+    <div class="kpi"><span class="kpi-n">{{ c }}</span><span class="kpi-l">{{ t }} diagnoses</span></div>
+    {% endfor %}
+  </div>
+
+  <div class="panels">
+    <div class="card">
+      <h2>Accuracy by skin tone</h2>
+      <p class="legend"><span class="li"><span class="sw light"></span>FST 1–4 (light)</span><span class="li"><span class="sw dark"></span>FST 5–6 (dark)</span></p>
+      {% for r in skin %}
+      <p class="metric">{{ r.metric }}</p>
+      <div class="hrow tight"><span class="hlabel">FST 1–4</span>{{ bar(r.light, 'light') }}</div>
+      <div class="hrow tight"><span class="hlabel">FST 5–6</span>{{ bar(r.dark, 'dark') }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Top-1 accuracy before vs with AI</h2>
+      <p class="legend"><span class="li"><span class="sw ref"></span>Before AI</span><span class="li"><span class="sw you"></span>With AI</span></p>
+      {% for r in dls %}
+      <p class="metric">{{ r.metric }}</p>
+      <div class="hrow tight"><span class="hlabel">Before</span>{{ bar(r.before, 'ref') }}</div>
+      <div class="hrow tight"><span class="hlabel">With AI</span>{{ bar(r.after, 'you') }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Does button order change choices?</h2>
+      <p class="legend"><span class="li"><span class="sw you"></span>'Update top' listed first</span><span class="li"><span class="sw ai"></span>'Keep' listed first</span></p>
+      {% for r in ui %}
+      <p class="metric">{{ r.metric }}</p>
+      <div class="hrow tight"><span class="hlabel">Top first</span>{{ bar(r.control, 'you') }}</div>
+      <div class="hrow tight"><span class="hlabel">Keep first</span>{{ bar(r.treatment, 'ai') }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="row">
+    <a class="btn primary" href="{{ url_for('export') }}">Download data (CSV)</a>
+    <form method="post" action="{{ url_for('new_session') }}"
+          onsubmit="return confirm('Start a new session? The current file is renamed as a backup, not deleted.')">
+      <button class="btn" type="submit">Start new session</button>
+    </form>
+  </div>
+  <p class="muted small">Analyse the downloaded file with:
+    <code>python analysis/key_results.py --data classroom_responses.csv --min-trials 1 --keep-failed-attention</code></p>
+</section>
+{% endblock %}

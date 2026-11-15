@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="card narrow">
+  <h1>Can you diagnose skin disease from a single photo?</h1>
+  <p class="lead">This is a classroom demonstration that recreates the store-and-forward teledermatology
+    experiment from Groh et al. (2024). You will see {{ n }} images, give up to three differential diagnoses,
+    and then see a suggestion from an AI model.</p>
+  <p class="muted small">Consent: participation is voluntary. Answers are stored anonymously on this computer
+    only, for demonstration purposes. {{ n_images }} images are loaded.</p>
+
+  <form method="post" action="{{ url_for('start') }}" class="survey">
+    <input type="hidden" name="dls_override" value="{{ dls }}">
+    <input type="hidden" name="ui_override" value="{{ ui }}">
+
+    <label>1. What best describes you?
+      <select name="physician_type" required>
+        <option value="" disabled selected>Select…</option>
+        {# Answer options below are the original experiment's options, recovered from the author's data
+           (ResearchBox 1802). Values stay as short codes so the analysis scripts keep working. #}
+        <option value="BCD">Board-certified/board-eligible dermatologist (MD or DO)</option>
+        <option value="Resident">Dermatology resident (MD or DO)</option>
+        <option value="PCP">PCP physician (MD or DO)</option>
+        <option value="Other">Other physician (MD or DO)</option>
+        <option value="Student">Not a clinician (student / other) — classroom-only option</option>
+      </select></label>
+
+    <label>2. How many years have you practiced medicine?
+      <select name="years">
+        <option value="" selected>----Please select one----</option>
+        <option>0-2</option><option>2-5</option><option>5-10</option><option>10-20</option><option>20+</option>
+        <option>Currently doing an internship</option><option>Currently doing a residency</option>
+        <option>Currently doing a fellowship</option>
+        <option>Not attending medical school and not practicing medicine</option>
+      </select></label>
+
+    <label>3. How would you describe the distribution of your patients' skin colors?
+      <select name="patient_mix">
+        <option value="" selected>----Please select one----</option>
+        <option>All white patients</option><option>Mostly white patients</option>
+        <option>About an equal portion of patients with skin of color (non-white) and white patients</option>
+        <option>Mostly patients with skin of color (non-white)</option>
+        <option>All patients with skin of color (non-white)</option><option>Not applicable</option>
+      </select></label>
+
+    <label>4. How often do you find it difficult to diagnose skin disease in white patients?
+      <select name="difficulty_white">
+        <option value="" selected>----Please select one----</option>
+        <option>One in two patients (50%)</option><option>One in ten patients (10%)</option>
+        <option>One in one hundred patients (1%)</option>
+        <option>Less than one in one hundred of patients (&lt;1%)</option><option>Not Applicable</option>
+      </select></label>
+
+    <label>5. …and in non-white patients?
+      <select name="difficulty_nonwhite">
+        <option value="" selected>----Please select one----</option>
+        <option>One in two patients (50%)</option><option>One in ten patients (10%)</option>
+        <option>One in one hundred patients (1%)</option>
+        <option>Less than one in one hundred of patients (&lt;1%)</option><option>Not Applicable</option>
+      </select></label>
+
+    <label>6. Do you feel you received sufficient training for diagnosing skin diseases in patients with skin of color?
+      <select name="sufficient_training">
+        <option value="" selected>----Please select one----</option><option>Yes</option><option>No</option>
+      </select></label>
+
+    <label>7. Which country do you live in?
+      <input name="country" placeholder="e.g. Canada" autocomplete="country-name"></label>
+
+    {% if dls or ui %}
+    <p class="note">Presenter mode: AI = <b>{{ dls or "random" }}</b>, button order = <b>{{ ui or "random" }}</b></p>
+    {% endif %}
+    <button class="btn primary" type="submit">Start</button>
+  </form>
+</section>
+{% endblock %}

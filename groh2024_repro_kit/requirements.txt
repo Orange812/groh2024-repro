@@ -1,0 +1,8 @@
+# 本工具包：统计分析 + 演示网站（Python 3.9 及以上）
+pandas>=1.5
+numpy>=1.23
+scipy>=1.9
+matplotlib>=3.6
+flask>=2.2
+# 可选：用于交叉验证聚类稳健标准误（stats_utils.check_against_statsmodels）
+# statsmodels>=0.13

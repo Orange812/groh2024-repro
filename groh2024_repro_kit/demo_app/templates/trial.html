@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="progress"><span style="width: {{ (100 * (k - 1) / n) if k <= n else 100 }}%"></span></div>
+<p class="muted small">Image {{ k }}{% if k <= n %} of {{ n }} — after {{ n }} images you'll see how you compare to others{% else %} (bonus round){% endif %}</p>
+
+<section class="trial">
+  <figure class="photo">
+    <img src="{{ url_for('img', image_id=im.image_id) }}" alt="Clinical photograph to diagnose">
+    {% if im.credit %}<figcaption>{{ im.credit }}</figcaption>{% endif %}
+  </figure>
+
+  <form method="post" class="card dxform" autocomplete="off">
+    <h2>Can you accurately diagnose this skin condition?</h2>
+    <label>Leading diagnosis
+      <input name="dx1" list="dxlist" placeholder="Type leading diagnosis" required autofocus></label>
+    <label>Secondary differential diagnosis
+      <input name="dx2" list="dxlist" placeholder="Type secondary differential diagnosis"></label>
+    <label>Tertiary differential diagnosis
+      <input name="dx3" list="dxlist" placeholder="Type tertiary differential diagnosis"></label>
+    <datalist id="dxlist">{% for l in labels %}<option value="{{ l }}">{% endfor %}</datalist>
+
+    <label>How confident are you? <output id="confout">50</output>%
+      <input type="range" name="confidence" min="0" max="100" step="5" value="50"
+             oninput="document.getElementById('confout').value = this.value"></label>
+
+    <div class="checks">
+      <label class="check"><input type="checkbox" name="biopsy"> I would refer this patient for a biopsy</label>
+      {% if not is_bcd %}
+      <label class="check"><input type="checkbox" name="refer"> I would refer this patient to a dermatologist for a second opinion</label>
+      {% endif %}
+    </div>
+    <button class="btn primary" type="submit">Submit</button>
+  </form>
+</section>
+{% endblock %}

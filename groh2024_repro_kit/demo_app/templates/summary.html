@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+<section class="card narrow">
+  <h1>How do you compare?</h1>
+  <p class="muted">Based on your {{ n }} diagnoses (the attention-check image is excluded).
+    Paper values are the published averages across all images.</p>
+  <div class="hbars">
+    {% for label, v, kind in bars %}
+    <div class="hrow">
+      <span class="hlabel">{{ label }}</span>
+      <span class="htrack"><span class="hbar {{ kind }}" style="width: {{ (v * 100) | round(1) }}%"></span></span>
+      <span class="hval">{{ (v * 100) | round | int }}%</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="row">
+    {% if more %}<a class="btn primary" href="{{ url_for('trial') }}">Keep diagnosing</a>{% endif %}
+    <a class="btn" href="{{ url_for('dashboard') }}">See class results</a>
+  </div>
+</section>
+{% endblock %}

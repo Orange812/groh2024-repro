@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block body %}
+{% if correct %}<div class="fireworks" aria-hidden="true"></div>{% endif %}
+<section class="trial">
+  <figure class="photo small">
+    <img src="{{ url_for('img', image_id=im.image_id) }}" alt="Clinical photograph">
+  </figure>
+  <div class="card">
+    <p class="verdict {{ 'ok' if correct else 'no' }}">
+      {{ "Your differential includes the reference diagnosis." if correct else "Not this time." }}</p>
+    <dl class="facts">
+      <dt>Reference diagnosis</dt><dd class="big">{{ im.disease }}</dd>
+      <dt>Your final differential</dt><dd>{{ final | join(" · ") }}</dd>
+      <dt>AI suggestion</dt>
+      <dd>{{ rec.dls_suggestion }} {{ "✓" if rec.dls_correct else "✗" }}
+        {% if rec.choice == "same" %}<span class="muted">(already in your differential)</span>
+        {% elif rec.choice == "keep" %}<span class="muted">(you kept your differential)</span>
+        {% elif rec.choice == "include" %}<span class="muted">(added to your differential)</span>
+        {% else %}<span class="muted">(made your top prediction)</span>{% endif %}</dd>
+      <dt>Most common incorrect answer for this image</dt><dd>{{ wrong }}</dd>
+      <dt>Skin tone (estimated Fitzpatrick type)</dt><dd>FST {{ im.fst }}</dd>
+    </dl>
+    <a class="btn primary" href="{{ nxt }}">Next image</a>
+  </div>
+</section>
+{% if correct %}
+<script>
+  // a brief digital fireworks show, as in the original experiment
+  (function () {
+    const box = document.querySelector('.fireworks');
+    const colors = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4'];
+    for (let i = 0; i < 70; i++) {
+      const s = document.createElement('span');
+      const a = Math.random() * 2 * Math.PI, r = 120 + Math.random() * 220;
+      s.style.setProperty('--x', Math.cos(a) * r + 'px');
+      s.style.setProperty('--y', Math.sin(a) * r + 'px');
+      s.style.background = colors[i % colors.length];
+      s.style.animationDelay = (Math.random() * 0.25) + 's';
+      box.appendChild(s);
+    }
+    setTimeout(() => box.remove(), 1800);
+  })();
+</script>
+{% endif %}
+{% endblock %}
