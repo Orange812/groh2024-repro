@@ -1,0 +1,13 @@
+type,section,description,"file name"
+Data,"Experimental Data",csv,"Experimental Data.csv.zip"
+Codebook,"Experimental Data",csv,"Experimental Data.csv.zip___CODEBOOK.csv"
+Code,"Control DLS Training Code",py,"Control DLS Training Code.py"
+Code,Analysis,txt,requirements.txt
+Code,Analysis,ipynb,Analysis.ipynb
+
+
+"This ResearchBox is available from:"
+https://researchbox.org/1802
+
+"To directly download the entire Box as a single zipped file:"
+http://zipballs.researchbox.org/ResearchBox_1802.zip
