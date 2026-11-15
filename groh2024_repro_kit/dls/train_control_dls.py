@@ -1,27 +1,27 @@
 """
-训练「对照 AI」（Control DLS）——按论文 Methods 的描述独立重写
+Train the "control AI" (control DLS) — an independent rewrite from the description in the paper's Methods
 
-论文里的对照 AI：
-  - VGG-16，ImageNet 预训练；
-  - 在 31,219 张多样化临床皮肤图片上微调（Fitzpatrick 17k + 作者另收集的教科书/图谱/搜索引擎图片）；
-  - 分 9 类：8 种重点疾病 + "Other"；
-  - 数据增强：随机缩放到 256×256、随机旋转 0–15°、随机调整亮度/对比度/饱和度/色调、
-    随机水平翻转、中心裁剪 224×224、按 ImageNet 均值方差归一化；
-  - 在实验用的 364 张图上 top-1 准确率 47%；深色 58%、浅色 56%（8 种主要疾病）→ 在肤色间"公平"。
+The control AI in the paper:
+  - VGG-16, pretrained on ImageNet;
+  - fine-tuned on 31,219 diverse clinical skin images (Fitzpatrick 17k + textbook/atlas/search-engine images the authors collected);
+  - 9 classes: the 8 main conditions + "Other";
+  - augmentation: random resize to 256×256, random rotation 0–15°, random brightness/contrast/saturation/hue,
+    random horizontal flip, centre crop 224×224, normalisation with the ImageNet mean and std;
+  - top-1 accuracy 47% on the 364 experiment images; 58% on dark and 56% on light skin (8 main conditions) → "fair" across skin tones.
 
-作者的原始训练代码在 ResearchBox #1802 的 "Control DLS Training Code.py"，结构与
-Fitzpatrick17k 仓库的 train.py 相同（冻结 VGG-16，替换最后一层为 4096→256→ReLU→Dropout(0.4)→9 类）。
-本脚本沿用同样的结构，但做了简化，方便在 Google Colab 上 30–60 分钟内训练一个演示用模型。
-注意：作者额外收集的图片没有公开，所以无法得到与论文完全相同的模型。
+The authors' original training code is "Control DLS Training Code.py" in ResearchBox #1802; its structure matches
+train.py in the Fitzpatrick17k repository (VGG-16 frozen, last layer replaced by 4096→256→ReLU→Dropout(0.4)→9 classes).
+This script keeps the same structure but is simplified so that a demo model can be trained on Google Colab in 30–60 minutes.
+Note: the extra images the authors collected are not public, so the exact model from the paper cannot be obtained.
 
-数据格式：一个 CSV，至少两列
-  path   图片路径（相对 --img-root）
-  label  原始疾病标签（会自动映射为 9 类；Fitzpatrick17k 的 label 列可直接用）
-  fst    （可选）Fitzpatrick 分型 1–6，用于按肤色检查公平性
+Data format: a CSV with at least two columns
+  path   image path (relative to --img-root)
+  label  original disease label (mapped to the 9 classes automatically; the Fitzpatrick17k label column works as is)
+  fst    (optional) Fitzpatrick type 1–6, used to check fairness across skin tones
 
-用法示例（Colab GPU）：
+Example (Colab GPU):
   python dls/train_control_dls.py --csv f17k_train.csv --img-root images/ --epochs 8 --max-per-class 400
-输出：--out 目录下的 model.pt、class_names.json、val_predictions.csv、train_log.csv
+Output: model.pt, class_names.json, val_predictions.csv and train_log.csv in the --out folder
 """
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ def build_model(n_classes: int, train_classifier: bool = False, pretrained: bool
     from torchvision import models
     try:
         m = models.vgg16(weights=models.VGG16_Weights.IMAGENET1K_V1 if pretrained else None)
-    except AttributeError:                                   # 旧版 torchvision
+    except AttributeError:                                   # older torchvision
         m = models.vgg16(pretrained=pretrained)
     for p in m.parameters():
         p.requires_grad = False
@@ -91,16 +91,16 @@ def build_model(n_classes: int, train_classifier: bool = False, pretrained: bool
 
 
 def main():
-    ap = argparse.ArgumentParser(description="训练 9 分类 VGG-16 对照 AI（演示版）")
+    ap = argparse.ArgumentParser(description="Train the 9-class VGG-16 control AI (demo version)")
     ap.add_argument("--csv", required=True)
     ap.add_argument("--img-root", default=".")
     ap.add_argument("--out", default=str(ROOT / "dls" / "checkpoint"))
     ap.add_argument("--epochs", type=int, default=8)
     ap.add_argument("--batch-size", type=int, default=64)
     ap.add_argument("--lr", type=float, default=1e-3)
-    ap.add_argument("--max-per-class", type=int, default=0, help="每类最多取多少张（0=全部；Colab 演示建议 300–500）")
+    ap.add_argument("--max-per-class", type=int, default=0, help="maximum images per class (0 = all; 300–500 recommended for the Colab demo)")
     ap.add_argument("--val-frac", type=float, default=0.2)
-    ap.add_argument("--train-classifier", action="store_true", help="同时微调 VGG 原分类层（更慢，可能更准）")
+    ap.add_argument("--train-classifier", action="store_true", help="also fine-tune VGG's original classifier layers (slower, possibly more accurate)")
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--seed", type=int, default=4242)
     a = ap.parse_args()
@@ -113,19 +113,19 @@ def main():
     rng = np.random.default_rng(a.seed)
     df = pd.read_csv(a.csv)
     if "path" not in df:
-        if "md5hash" in df:                                   # 直接用 Fitzpatrick17k 的 CSV：图片名 = md5hash.jpg
+        if "md5hash" in df:                                   # using the Fitzpatrick17k CSV directly: image name = md5hash.jpg
             df["path"] = df["md5hash"].astype(str) + ".jpg"
         else:
-            sys.exit("CSV 需要 path 列（或 Fitzpatrick17k 的 md5hash 列）")
+            sys.exit("The CSV needs a path column (or the Fitzpatrick17k md5hash column)")
     df = df[[(Path(a.img_root) / p).exists() for p in df.path]].copy()
     df["cls"] = df["label"].map(to9)
-    if a.max_per_class:                                       # 打乱后每类取前 N 张（兼容 pandas 2.x / 3.x）
+    if a.max_per_class:                                       # shuffle, then take the first N per class (works with pandas 2.x / 3.x)
         df = df.sample(frac=1, random_state=a.seed).groupby("cls").head(a.max_per_class)
     df["y"] = df["cls"].map({c: i for i, c in enumerate(CLASSES)})
     fst_col = next((c for c in ("fst", "fitzpatrick_scale", "fitzpatrick") if c in df), None)
-    print("各类图片数：\n" + df.cls.value_counts().to_string())
+    print("Images per class:\n" + df.cls.value_counts().to_string())
 
-    # 分层抽样划分训练/验证
+    # Stratified train/validation split
     val_idx = df.groupby("cls").sample(frac=a.val_frac, random_state=a.seed).index
     val, train = df.loc[val_idx], df.drop(index=val_idx)
 
@@ -139,7 +139,7 @@ def main():
                         num_workers=a.workers)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"设备：{device}；训练 {len(train)} 张，验证 {len(val)} 张")
+    print(f"Device: {device}; {len(train)} training images, {len(val)} validation images")
     model = build_model(len(CLASSES), a.train_classifier).to(device)
     opt = torch.optim.Adam([p for p in model.parameters() if p.requires_grad], lr=a.lr)
     sched = torch.optim.lr_scheduler.StepLR(opt, step_size=7, gamma=0.1)
@@ -180,7 +180,7 @@ def main():
     pd.DataFrame(log).to_csv(out / "train_log.csv", index=False)
     (out / "class_names.json").write_text(json.dumps(CLASSES, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # 用最佳模型在验证集上输出预测，并按肤色检查"公平性"（论文：深色 58% vs 浅色 56%）
+    # Predict the validation set with the best model and check "fairness" across skin tones (paper: 58% dark vs 56% light)
     model.load_state_dict(torch.load(out / "model.pt", map_location=device))
     model.eval()
     rows = []
@@ -196,12 +196,12 @@ def main():
     pv = pd.DataFrame(rows)
     pv.to_csv(out / "val_predictions.csv", index=False)
     acc = (pv.label == pv.pred).mean()
-    print(f"\n最佳验证准确率 {acc:.3f}")
+    print(f"\nBest validation accuracy {acc:.3f}")
     if fst_col:
         pv["dark"] = pd.to_numeric(pv.fst, errors="coerce") >= 5
-        print("按肤色：\n" + pv.groupby("dark").apply(lambda g: (g.label == g.pred).mean()).rename(
+        print("By skin tone:\n" + pv.groupby("dark").apply(lambda g: (g.label == g.pred).mean()).rename(
             {False: "FST 1–4", True: "FST 5–6"}).to_string())
-    print(f"已保存到 {out}/")
+    print(f"Saved to {out}/")
 
 
 if __name__ == "__main__":

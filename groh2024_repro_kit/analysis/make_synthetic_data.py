@@ -1,16 +1,16 @@
 """
-生成「模拟实验数据」——只用于彩排和测试代码，绝不能当作论文结果引用！
+Generate "simulated experiment data" — only for rehearsals and testing the code; never cite it as the paper's results!
 
-为什么需要它：
-  - 真实数据（ResearchBox #1802 的 Experimental Data.csv）需要你在自己电脑上下载；
-  - 在拿到真实数据之前，用这份模拟数据可以先把分析脚本、图表和现场演示全部跑通；
-  - 模拟参数按论文报告的汇总数字粗略校准（人数、准确率、肤色差距、AI 提升幅度、按钮顺序效应），
-    所以跑出来的结果"长得像"论文，但每个数字都是随机生成的。
+Why it is needed:
+  - the real data (Experimental Data.csv from ResearchBox #1802) has to be downloaded on your own computer;
+  - before you have the real data, this simulated data lets you run the analysis scripts, figures and live demo end to end;
+  - the simulation parameters are roughly calibrated to the paper's summary numbers (sample sizes, accuracy, skin-tone gaps, AI gains, button-order effect),
+    so the results "look like" the paper, but every number is randomly generated.
 
-输出：data/synthetic_experiment.csv（字段与 demo_app 记录的格式相同，即本工具包的"标准格式"）
+Output: data/synthetic_experiment.csv (same fields as the demo_app log, i.e. this toolkit's "standard format")
 
-用法：
-  python analysis/make_synthetic_data.py              # 默认随机种子 2024
+Usage:
+  python analysis/make_synthetic_data.py              # default random seed 2024
   python analysis/make_synthetic_data.py --seed 7 --out data/sim2.csv
 """
 from __future__ import annotations
@@ -28,21 +28,21 @@ from common.diseases import AUXILIARY, MAIN8  # noqa: E402
 
 MAIN_COUNTS = {"Atopic dermatitis": 31, "CTCL": 48, "Dermatomyositis": 34, "Lyme disease": 30,
                "Lichen planus": 32, "Pityriasis rosea": 33, "Pityriasis rubra pilaris": 47,
-               "Secondary syphilis": 29}                       # 论文 Methods：共 284 张
-N_AUX_IMAGES = 79                                               # 另外 38 种病的 79 张（Fitzpatrick 17k）
+               "Secondary syphilis": 29}                       # paper, Methods: 284 images in total
+N_AUX_IMAGES = 79                                               # plus 79 images of 38 other diseases (Fitzpatrick 17k)
 
-# 进入主分析的人数（通过注意力检查且完成 ≥10 张）与总招募人数（论文 Results）
+# Participants in the main analysis (passed the attention check and completed ≥10 images) and total recruited (paper, Results)
 ANALYZED = {"BCD": 296, "Resident": 83, "PCP": 350, "Other": 113}
 RECRUITED = {"BCD": 389, "Resident": 116, "PCP": 459, "Other": 154}
 
-# 首要诊断 / 前三诊断准确率目标（8 种主要疾病）与深色皮肤差距（百分点 / 100）
+# Target top-1 / top-3 accuracy (8 main conditions) and dark-skin gap (percentage points / 100)
 TOP1 = {"BCD": 0.27, "Resident": 0.24, "PCP": 0.13, "Other": 0.12}
 TOP3 = {"BCD": 0.37, "Resident": 0.35, "PCP": 0.17, "Other": 0.16}
 GAP1 = {"BCD": -0.05, "Resident": -0.05, "PCP": -0.03, "Other": -0.05}
 GAP3 = {"BCD": -0.03, "Resident": -0.05, "PCP": -0.04, "Other": -0.04}
 DARK_SHARE = 0.32
 
-# 疾病难度（相对平均）与 BCD 在各病上的肤色差距调整（论文：AD/Lyme/PR/CTCL 深色显著更差，LP 相反）
+# Disease difficulty (relative to the mean) and per-disease skin-tone gap adjustment for BCDs (paper: significantly worse on dark skin for AD/Lyme/PR/CTCL, the reverse for LP)
 DISEASE_DIFF = {"Atopic dermatitis": 0.10, "CTCL": -0.08, "Dermatomyositis": 0.10, "Lyme disease": 0.12,
                 "Lichen planus": 0.05, "Pityriasis rosea": 0.02, "Pityriasis rubra pilaris": -0.10,
                 "Secondary syphilis": -0.05}
@@ -72,21 +72,21 @@ def make_images(rng: np.random.Generator) -> pd.DataFrame:
     aux = rng.choice(AUXILIARY, N_AUX_IMAGES)
     for d in aux:
         rows.append({"disease": str(d), "fst": int(rng.integers(1, 7)), "attention_check": 0})
-    rows.insert(0, {"disease": "Acne", "fst": 5, "attention_check": 1})     # 注意力检查图（痤疮）
+    rows.insert(0, {"disease": "Acne", "fst": 5, "attention_check": 1})     # attention-check image (acne)
     img = pd.DataFrame(rows)
     img["image_id"] = [f"img_{i:03d}" for i in range(len(img))]
 
-    # 每张图固定的 AI 预测（与论文一致：同一张图对所有人给出同样的建议）
+    # A fixed AI prediction per image (as in the paper: everyone gets the same suggestion for the same image)
     classes = list(MAIN8) + ["Other"]
     ctrl, treat, sugg_c, sugg_t = [], [], [], []
     for _, r in img.iterrows():
         true9 = r.disease if r.disease in MAIN8 else "Other"
         p_ok = (0.57 if r.fst >= 5 else 0.55) if true9 != "Other" else 0.25
         pred = true9 if rng.random() < p_ok else rng.choice([c for c in classes if c != true9])
-        pred_t = pred if pred == true9 or rng.random() >= 0.65 else true9   # Wizard of Oz：65% 错误翻转为正确
+        pred_t = pred if pred == true9 or rng.random() >= 0.65 else true9   # Wizard of Oz: 65% of wrong predictions flipped to correct
         ctrl.append(pred)
         treat.append(pred_t)
-        aux_pick = str(rng.choice(AUXILIARY))                              # 预测 Other 时随机给一个辅助疾病
+        aux_pick = str(rng.choice(AUXILIARY))                              # when predicting Other, suggest a random auxiliary disease
         sugg_c.append(aux_pick if pred == "Other" else pred)
         sugg_t.append(aux_pick if pred_t == "Other" else pred_t)
     img["dls_pred_control"], img["dls_pred_treatment"] = ctrl, treat
@@ -161,7 +161,7 @@ def simulate(seed: int = 2024) -> pd.DataFrame:
             top1 = rng.random() < p1
             top3 = top1 or (rng.random() < (p3 - p1) / max(1 - p1, 1e-6))
 
-            # 文字诊断（让"按文本判分"的路径也能被测试）
+            # Text diagnoses (so that the "grade by text" path is tested too)
             wrong = [d for d in list(MAIN8) + AUXILIARY[:12] if d != im.disease]
             dx = list(rng.choice(wrong, 3, replace=False))
             if top1:
@@ -169,7 +169,7 @@ def simulate(seed: int = 2024) -> pd.DataFrame:
             elif top3:
                 dx[int(rng.integers(1, 3))] = im.disease
 
-            # AI 建议与选择
+            # AI suggestion and choice
             cond = p.dls_condition
             sugg = im[f"suggestion_{cond}"]
             sugg_ok = sugg == im.disease
@@ -181,7 +181,7 @@ def simulate(seed: int = 2024) -> pd.DataFrame:
                 if sugg_ok:
                     accept = 0.64 + (0.07 if cond == "treatment" else 0)
                     if t == "PCP" and dark:
-                        accept -= 0.14                    # 让全科医生的肤色差距在 AI 辅助后扩大
+                        accept -= 0.14                    # make the PCP skin-tone gap widen with AI assistance
                     r = rng.random()
                     choice = "top" if r < accept * top_share else ("include" if r < accept else "keep")
                 else:
@@ -196,7 +196,7 @@ def simulate(seed: int = 2024) -> pd.DataFrame:
             top1_after = sugg_ok if choice == "top" else top1
             top4_after = top3 or (choice in ("top", "include") and sugg_ok)
 
-            # 活检 / 转诊 / 信心
+            # Biopsy / referral / confidence
             if t == "BCD":
                 pb = 0.26 + {"CTCL": 0.25 - 0.20 * dark, "Atopic dermatitis": 0.10 * dark,
                              "Pityriasis rosea": 0.10 * dark, "Pityriasis rubra pilaris": -0.10 * dark}.get(im.disease, 0)
@@ -220,15 +220,15 @@ def simulate(seed: int = 2024) -> pd.DataFrame:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="生成模拟实验数据（仅供彩排/测试）")
+    ap = argparse.ArgumentParser(description="Generate simulated experiment data (rehearsal/testing only)")
     ap.add_argument("--seed", type=int, default=2024)
     ap.add_argument("--out", default=str(ROOT / "data" / "synthetic_experiment.csv"))
     a = ap.parse_args()
     df = simulate(a.seed)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(a.out, index=False)
-    print(f"[模拟数据] 已写入 {a.out}：{df.participant_id.nunique()} 名虚拟医生，{len(df)} 条诊断记录")
-    print("提醒：这是随机生成的数据，只能用于彩排，不能当作论文结果。")
+    print(f"[simulated data] wrote {a.out}: {df.participant_id.nunique()} virtual physicians, {len(df)} diagnosis records")
+    print("Reminder: this data is randomly generated. Use it only for rehearsal, never as the paper's results.")
 
 
 if __name__ == "__main__":

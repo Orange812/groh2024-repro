@@ -1,18 +1,18 @@
 """
-论文实验平台的课堂复刻版（store-and-forward 远程皮肤科模拟）
+Classroom replica of the paper's experiment platform (a store-and-forward teledermatology simulation)
 
-复刻了论文 Methods → Experimental interface 描述的完整流程：
-  知情同意 + 7 道问卷 → 随机分组（对照/增强 AI × 两种按钮顺序）→ 说明页（"AI 并非完全准确"，不透露准确率）
-  → 看图，自由输入最多 3 个鉴别诊断（带联想提示）+ 信心滑块 + 是否活检/转诊
-  → 若 AI 建议不在你的鉴别诊断里，显示 AI 建议和三个按钮（顺序随分组变化）
-  → 反馈页：正确答案 + 其他人最常见的错误答案（答对放烟花）
-  → 10 张图后与皮肤科医生、全科医生、AI 的准确率对比，可继续作答
-另加：/dashboard 实时汇总全班结果，/export.csv 导出数据（可直接交给 analysis/key_results.py 分析）。
+It replicates the full flow described in the paper's Methods → Experimental interface:
+  consent + 7 survey questions → random assignment (control/enhanced AI × two button orders) → instructions ("the AI is not perfectly accurate"; accuracy not disclosed)
+  → view the image, type up to 3 differential diagnoses as free text (with predictive text) + confidence slider + biopsy/referral
+  → if the AI suggestion is not in your differential, show it with three buttons (their order depends on the arm)
+  → feedback page: correct answer + the most common incorrect answer from others (fireworks when you are right)
+  → after 10 images, a comparison with the accuracy of dermatologists, primary care physicians and the AI; you may keep going
+Extras: /dashboard shows live class-wide results; /export.csv exports the data (can be fed straight into analysis/key_results.py).
 
-运行：
-  python demo_app/app.py                 # 本机：浏览器打开 http://127.0.0.1:5000
-  python demo_app/app.py --lan           # 同一 Wi-Fi 的手机也能访问（需网络允许设备互访）
-讲台演示时可以用网址参数固定分组，便于对比两种界面：
+Run:
+  python demo_app/app.py                 # this computer: open http://127.0.0.1:5000 in a browser
+  python demo_app/app.py --lan           # phones on the same Wi-Fi can connect too (the network must allow devices to reach each other)
+For a lectern demo, URL parameters can fix the assignment, to compare the two interfaces:
   http://127.0.0.1:5000/?dls=treatment&ui=control
 """
 from __future__ import annotations
@@ -41,8 +41,8 @@ IMG_DIR = BASE / "static" / "images"
 IMAGES_CSV = Path(os.environ.get("DEMO_IMAGES", DATA / "images.csv"))
 LOG = Path(os.environ.get("DEMO_LOG", DATA / "responses.csv"))
 N_TRIALS = int(os.environ.get("DEMO_TRIALS", 10))
-CONTROL_ACC = 0.47      # 没有真实模型预测时，模拟对照 AI 的准确率
-FLIP = 0.65             # Wizard of Oz：错误预测中改为正确的比例
+CONTROL_ACC = 0.47      # simulated control-AI accuracy when no real model predictions exist
+FLIP = 0.65             # Wizard of Oz: share of wrong predictions changed to correct
 PAPER_REF = [("Board-certified dermatologists (paper)", 0.38), ("Primary care physicians (paper)", 0.19)]
 FST_COLORS = {1: "#f3d9c7", 2: "#e7bf9f", 3: "#cfa07c", 4: "#a87753", 5: "#7b5034", 6: "#4b2f1f"}
 
@@ -58,9 +58,9 @@ LOCK = threading.Lock()
 STATE: dict[str, dict] = {}
 
 
-# ------------------------------------------------------------------ 图片与 AI 建议
+# ------------------------------------------------------------------ Images and AI suggestions
 def _u(key: str) -> float:
-    """确定性的 [0,1) 随机数：同一张图对所有人给出同样的 AI 建议（与论文一致）。"""
+    """Deterministic random number in [0,1): everyone gets the same AI suggestion for the same image (as in the paper)."""
     return (zlib.crc32(key.encode("utf-8")) % 1_000_003) / 1_000_003
 
 
@@ -76,8 +76,8 @@ def load_images() -> list[dict]:
     with open(IMAGES_CSV, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
     classes = list(MAIN8) + ["Other"]
-    # 没有真实模型预测的图片：按配额精确模拟，而不是每张图独立抛硬币。
-    # 图片少时独立抽样波动很大（例如 29 张图上抽到 38%），配额法保证正好 47% 的图片预测正确（9 分类）。
+    # Images without real model predictions: simulate exactly by quota rather than an independent coin flip per image.
+    # With few images, independent draws vary a lot (e.g. 38% on 29 images); the quota guarantees exactly 47% are predicted correctly (9 classes).
     sim = sorted((r["image_id"].strip() for r in rows
                   if not (r.get("dls_pred_control") or "").strip() and not _is_attention(r)),
                  key=lambda i: _u(i + "|ctrl"))
@@ -87,14 +87,14 @@ def load_images() -> list[dict]:
         iid, true9 = r["image_id"].strip(), _to9(r["disease"].strip())
         pred = (r.get("dls_pred_control") or "").strip()
         if pred:
-            pred = _to9(pred)                                   # 真实模型的预测（dls/predict.py 写入）
+            pred = _to9(pred)                                   # real model prediction (written by dls/predict.py)
         elif iid in sim_correct or _is_attention(r):
-            pred = true9                                        # 否则按 47% 配额模拟
+            pred = true9                                        # otherwise simulate with the 47% quota
         else:
             wrong = [c for c in classes if c != true9]
             pred = wrong[int(_u(iid + "|wrong") * len(wrong))]
         preds[iid] = (true9, pred)
-    # Wizard of Oz：把错误预测中正好 65%（按配额）改成正确答案 → 47% + 53% × 65% ≈ 81%
+    # Wizard of Oz: change exactly 65% (by quota) of the wrong predictions to the correct answer → 47% + 53% × 65% ≈ 81%
     wrong_ids = sorted((i for i, (t, p) in preds.items() if p != t), key=lambda i: _u(i + "|woz"))
     flipped = set(wrong_ids[:round(FLIP * len(wrong_ids))])
     out = []
@@ -102,12 +102,12 @@ def load_images() -> list[dict]:
         iid, disease = r["image_id"].strip(), r["disease"].strip()
         true9, pred = preds[iid]
         pred_t = true9 if iid in flipped else pred
-        aux = AUXILIARY[int(_u(iid + "|aux") * len(AUXILIARY))]  # 预测 "Other" 时从 36 种辅助疾病中随机给一个
+        aux = AUXILIARY[int(_u(iid + "|aux") * len(AUXILIARY))]  # when predicting "Other", suggest one of the 36 auxiliary diseases at random
         file = (r.get("file") or "").strip()
         out.append({
             "image_id": iid, "disease": disease, "fst": int(float(r.get("fst") or 0) or 0),
             "attention": _is_attention(r),
-            "pred9": {"control": pred, "treatment": pred_t},    # 9 分类预测（论文计算 AI 准确率的口径）
+            "pred9": {"control": pred, "treatment": pred_t},    # 9-class prediction (the basis the paper uses for AI accuracy)
             "file": file if file and (IMG_DIR / file).exists() else "",
             "credit": r.get("credit", ""),
             "suggestion": {"control": aux if pred == "Other" else pred,
@@ -120,7 +120,7 @@ IMAGES = load_images()
 BY_ID = {im["image_id"]: im for im in IMAGES}
 
 
-# ------------------------------------------------------------------ 记录
+# ------------------------------------------------------------------ Logging
 def log_row(row: dict):
     with LOCK:
         new = not LOG.exists()
@@ -145,7 +145,7 @@ def most_common_wrong(image_id: str) -> str:
     return c.most_common(1)[0][0] if c else "—"
 
 
-# ------------------------------------------------------------------ 页面
+# ------------------------------------------------------------------ Pages
 def current():
     pid = session.get("pid")
     return STATE.get(pid) if pid else None
@@ -215,7 +215,7 @@ def trial():
         "seconds": round(time.time() - st.get("t0", time.time()), 1),
     }
     st["pending"] = rec
-    if im["attention"] or in_differential(dx, sugg):          # AI 建议已在鉴别诊断中 → 不显示建议页
+    if im["attention"] or in_differential(dx, sugg):          # AI suggestion already in the differential → skip the suggestion page
         return finish_trial(st, "same")
     return redirect(url_for("suggest"))
 
@@ -248,7 +248,7 @@ def suggest():
     buttons = [("top", f"Update my top prediction with {sugg}"),
                ("include", f"Update my differential to include {sugg}"),
                ("keep", "Keep my differential")]
-    if st["ui"] == "treatment":                                # 实验组：按钮顺序反过来
+    if st["ui"] == "treatment":                                # treatment interface: buttons in reverse order
         buttons = buttons[::-1]
     im = BY_ID[st["pending"]["image_id"]]
     return render_template("suggest.html", im=im, rec=st["pending"], buttons=buttons, sugg=sugg)
@@ -333,7 +333,7 @@ def export():
 
 @app.post("/admin/new-session")
 def new_session():
-    """开始新一轮课堂数据：旧记录改名备份，不删除。"""
+    """Start a new round of class data: the old log is renamed as a backup, not deleted."""
     if LOG.exists():
         LOG.rename(LOG.with_name(f"responses_backup_{time.strftime('%Y%m%d_%H%M%S')}.csv"))
     return redirect(url_for("dashboard"))
@@ -358,13 +358,13 @@ def img(image_id):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="课堂演示：论文实验平台复刻版")
-    ap.add_argument("--lan", action="store_true", help="监听 0.0.0.0，让同一网络的手机访问")
+    ap = argparse.ArgumentParser(description="Classroom demo: replica of the paper's experiment platform")
+    ap.add_argument("--lan", action="store_true", help="listen on 0.0.0.0 so phones on the same network can connect")
     ap.add_argument("--port", type=int, default=5000)
     a = ap.parse_args()
     n_real = sum(1 for im in IMAGES if im["file"])
-    print(f"已载入 {len(IMAGES)} 张图片（{n_real} 张真实图片，其余为占位图）；记录写入 {LOG}")
-    print(f"实验页面：http://127.0.0.1:{a.port}/    实时汇总：http://127.0.0.1:{a.port}/dashboard")
+    print(f"Loaded {len(IMAGES)} images ({n_real} real images, the rest placeholders); logging to {LOG}")
+    print(f"Experiment: http://127.0.0.1:{a.port}/    Live summary: http://127.0.0.1:{a.port}/dashboard")
     app.run(host="0.0.0.0" if a.lan else "127.0.0.1", port=a.port, debug=False)
 
 

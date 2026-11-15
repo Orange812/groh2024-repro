@@ -1,16 +1,16 @@
 """
-统计工具 —— 与论文一致的检验方法（不依赖 statsmodels）
+Statistics utilities — the same tests as the paper (no statsmodels dependency)
 
-论文 Results 部分写明：除另有说明外，所有统计比较都基于
-「普通最小二乘（OLS）回归 + 在参与者层面聚类的稳健标准误」；
-图中的 P 值则来自双侧 t 检验。
+The paper's Results section states that, unless stated otherwise, all statistical comparisons are based on
+"ordinary least squares (OLS) regression with robust standard errors clustered at the participant level";
+the P values in the figures come from two-sided t-tests.
 
-本文件实现：
-  ols_cluster()  OLS + CR1 聚类稳健标准误（与 Stata / statsmodels 的默认小样本校正一致：
-                 c = G/(G-1) * (N-1)/(N-K)，t 分布自由度 G-1）
-  diff_test()    两组差异 = 对 0/1 指示变量回归（论文主文所用的方式）
-  ttest()        双侧 t 检验（论文图中所用的方式）
-  check_against_statsmodels()  若装了 statsmodels，可交叉验证
+This file implements:
+  ols_cluster()  OLS + CR1 cluster-robust standard errors (same default small-sample correction as Stata / statsmodels:
+                 c = G/(G-1) * (N-1)/(N-K), t distribution with G-1 degrees of freedom)
+  diff_test()    difference between two groups = regression on a 0/1 indicator (as in the paper's main text)
+  ttest()        two-sided t-test (as in the paper's figures)
+  check_against_statsmodels()  cross-check against statsmodels, if it is installed
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ def _term_columns(terms):
 
 
 def build_design(df: pd.DataFrame, terms, intercept: bool = True) -> pd.DataFrame:
-    """把 ["BCD", "Dark", "BCD:Dark"] 这样的项列表变成设计矩阵（':' 表示交互项 = 列相乘）。"""
+    """Turn a list of terms such as ["BCD", "Dark", "BCD:Dark"] into a design matrix (':' marks an interaction = product of columns)."""
     cols = {}
     if intercept:
         cols["Intercept"] = np.ones(len(df))
@@ -37,10 +37,10 @@ def build_design(df: pd.DataFrame, terms, intercept: bool = True) -> pd.DataFram
 
 
 def ols_cluster(df: pd.DataFrame, y: str, terms, cluster: str, intercept: bool = True) -> pd.DataFrame:
-    """OLS 回归，标准误在 `cluster` 列（参与者 ID）层面聚类。
+    """OLS regression with standard errors clustered on the `cluster` column (participant ID).
 
-    返回每个系数的 coef / se / t / p / 95% CI；
-    out.attrs 中记录 n（观测数）、clusters（聚类数）、r2。
+    Returns coef / se / t / p / 95% CI for each coefficient;
+    out.attrs records n (number of observations), clusters (number of clusters) and r2.
     """
     need = [y, cluster] + _term_columns(terms)
     d = df.dropna(subset=need)
@@ -56,9 +56,9 @@ def ols_cluster(df: pd.DataFrame, y: str, terms, cluster: str, intercept: bool =
     groups = pd.factorize(d[cluster])[0]
     G = int(groups.max()) + 1
     if G < 2:
-        raise ValueError("至少需要 2 个聚类（参与者）才能计算聚类稳健标准误")
+        raise ValueError("At least 2 clusters (participants) are needed to compute cluster-robust standard errors")
 
-    # 每个聚类的得分向量之和：S_g = X_g' e_g
+    # Sum of the score vectors within each cluster: S_g = X_g' e_g
     S = np.zeros((G, k))
     np.add.at(S, groups, Xm * resid[:, None])
     meat = S.T @ S
@@ -83,7 +83,7 @@ def ols_cluster(df: pd.DataFrame, y: str, terms, cluster: str, intercept: bool =
 
 
 def diff_test(df: pd.DataFrame, y: str, indicator: str, cluster: str) -> dict:
-    """两组均值差（indicator=1 减 indicator=0），P 值来自聚类稳健 OLS。"""
+    """Difference in group means (indicator=1 minus indicator=0); the P value comes from cluster-robust OLS."""
     d = df.dropna(subset=[y, indicator, cluster])
     if d[indicator].nunique() < 2 or d[cluster].nunique() < 2:
         return {"mean0": np.nan, "mean1": np.nan, "diff": np.nan, "p": np.nan, "n": len(d)}
@@ -95,7 +95,7 @@ def diff_test(df: pd.DataFrame, y: str, indicator: str, cluster: str) -> dict:
 
 
 def ttest(a, b) -> float:
-    """双侧 t 检验的 P 值（论文图注写的是 two-sided t-test，未说明是否方差齐，这里用经典 Student t）。"""
+    """P value of a two-sided t-test (the figure legends say "two-sided t-test" without stating equal variances; the classic Student t is used here)."""
     a = pd.Series(a).dropna()
     b = pd.Series(b).dropna()
     if len(a) < 2 or len(b) < 2:
@@ -104,7 +104,7 @@ def ttest(a, b) -> float:
 
 
 def mean_ci(x, z: float = 1.96):
-    """均值和 95% 置信区间半宽（图中误差线用）。"""
+    """Mean and half-width of the 95% confidence interval (for the error bars in the figures)."""
     x = pd.Series(x).dropna().astype(float)
     if len(x) == 0:
         return np.nan, np.nan
@@ -120,7 +120,7 @@ def fmt_p(p) -> str:
 
 
 def check_against_statsmodels(df, y, terms, cluster) -> pd.DataFrame | None:
-    """若安装了 statsmodels，返回本实现与 statsmodels 的系数/标准误对照表；否则返回 None。"""
+    """If statsmodels is installed, return a table comparing this implementation's coefficients/SEs with statsmodels; otherwise None."""
     try:
         import statsmodels.api as sm  # noqa: F401
     except ImportError:

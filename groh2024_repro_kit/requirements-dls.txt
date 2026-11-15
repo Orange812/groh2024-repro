@@ -1,4 +1,4 @@
-# 训练 / 运行 AI 模型（建议在 Google Colab GPU 上，Colab 已自带 torch 和 torchvision）
+# Training / running the AI model (a Google Colab GPU is recommended; Colab already ships torch and torchvision)
 torch>=1.12
 torchvision>=0.13
 pillow>=9

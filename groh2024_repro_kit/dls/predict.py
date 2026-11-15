@@ -1,10 +1,10 @@
 """
-用训练好的对照 AI 对图片做预测（现场 demo 用）
+Predict images with the trained control AI (for the live demo)
 
-用法：
-  # 对单张或多张图片：打印 top-3 及概率
+Usage:
+  # One or more images: print the top 3 with probabilities
   python dls/predict.py --ckpt dls/checkpoint img1.jpg img2.jpg
-  # 给演示网站的全部图片预先算好 AI 建议（写入 demo_app/data/images.csv 的 dls_pred_control 列）
+  # Precompute AI suggestions for every demo-site image (written to the dls_pred_control column of demo_app/data/images.csv)
   python dls/predict.py --ckpt dls/checkpoint --update-demo
 """
 from __future__ import annotations
@@ -24,7 +24,7 @@ def load(ckpt: Path):
     import torch
     from train_control_dls import build_model, build_transforms
     classes = json.loads((ckpt / "class_names.json").read_text(encoding="utf-8"))
-    model = build_model(len(classes), pretrained=False)   # 权重来自 model.pt，无需再下载 ImageNet 权重
+    model = build_model(len(classes), pretrained=False)   # weights come from model.pt, so no ImageNet download is needed
     model.load_state_dict(torch.load(ckpt / "model.pt", map_location="cpu"))
     model.eval()
     return model, classes, build_transforms()[1]
@@ -45,10 +45,10 @@ def predict(paths, model, classes, tf, k=3):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="对照 AI 推理")
+    ap = argparse.ArgumentParser(description="Control AI inference")
     ap.add_argument("images", nargs="*")
     ap.add_argument("--ckpt", default=str(ROOT / "dls" / "checkpoint"))
-    ap.add_argument("--update-demo", action="store_true", help="为 demo_app 的图片批量写入 AI 预测")
+    ap.add_argument("--update-demo", action="store_true", help="write AI predictions for all demo_app images")
     a = ap.parse_args()
     model, classes, tf = load(Path(a.ckpt))
 
@@ -60,10 +60,10 @@ def main():
         res = predict([img_dir / f for f in df.loc[has, "file"]], model, classes, tf)
         df.loc[has, "dls_pred_control"] = res["d1"].to_numpy()
         df.to_csv(csv, index=False)
-        print(f"已为 {has.sum()} 张图片写入 AI 预测 → {csv}")
+        print(f"Wrote AI predictions for {has.sum()} images → {csv}")
         return
     if not a.images:
-        sys.exit("请给出图片路径，或使用 --update-demo")
+        sys.exit("Give image paths, or use --update-demo")
     print(predict(a.images, model, classes, tf).to_string(index=False))
 
 

@@ -1,20 +1,20 @@
 """
-疾病名称表 + 自由作答的判分逻辑（分析脚本和演示程序共用）
+Disease name tables + grading logic for free-text answers (shared by the analysis scripts and the demo app)
 
-论文做法（Methods → Annotating participants' differential diagnoses）：
-  - 参与者用自由文本输入诊断，系统根据 445 个诊断名称做联想提示；
-  - 共收集到 2,348 个不同的文本字符串，作者逐条人工审核，
-    把拼写错误、简写、同义词（如 mycosis fungoides = CTCL）都判为正确。
+What the paper did (Methods → Annotating participants' differential diagnoses):
+  - participants typed diagnoses as free text, with predictive text based on 445 diagnosis names;
+  - 2,348 distinct text strings were collected and the authors reviewed each one by hand,
+    counting misspellings, abbreviations and synonyms (e.g. mycosis fungoides = CTCL) as correct.
 
-这里用「同义词表 + 模糊匹配」近似这一人工判分过程，演示足够用；
-正式复现请使用作者 Experimental Data.csv 里已经判好的结果。
+Here a synonym table + fuzzy matching approximates that manual grading, which is good enough for the demo;
+for the actual reproduction, use the grades already stored in the authors' Experimental Data.csv.
 """
 from __future__ import annotations
 
 import difflib
 import re
 
-# 8 种重点疾病（论文 284 张图片，每种 ≥29 张）及同义词
+# The 8 main conditions (284 images in the paper, ≥29 per condition) and their synonyms
 MAIN8 = {
     "Atopic dermatitis": ["atopic dermatitis", "atopic dermatitis (eczema)", "eczema", "atopic eczema",
                           "dermatitis atopica", "dermatite atopica", "ad"],
@@ -31,7 +31,7 @@ MAIN8 = {
     "Secondary syphilis": ["secondary syphilis", "syphilis", "lues", "sifilis secundaria", "syphilis secondary"],
 }
 
-# 论文列出的 36 种辅助疾病（AI 预测为 "Other" 时，从中随机挑一个作为建议）
+# The 36 auxiliary diseases listed in the paper (when the AI predicts "Other", one is picked at random as the suggestion)
 AUXILIARY = [
     "Scleroderma", "Lupus erythematosus", "Acne", "Vitiligo", "Rosacea", "Tungiasis",
     "Urticaria pigmentosa", "Sarcoidosis", "Cheilitis", "Calcinosis cutis", "Allergic contact dermatitis",
@@ -43,7 +43,7 @@ AUXILIARY = [
     "Hidradenitis suppurativa", "Nematode infection", "Lichen amyloidosis", "Xanthoma",
 ]
 
-# 其他常见鉴别诊断，只用于输入框的联想提示（论文用了 445 个；这里给一个精简版）
+# Other common differential diagnoses, used only for the input box's predictive text (the paper used 445; this is a short list)
 EXTRA_SUGGESTIONS = [
     "Tinea corporis", "Tinea versicolor", "Nummular eczema", "Contact dermatitis", "Drug eruption",
     "Erythema multiforme", "Discoid lupus erythematosus", "Morphea", "Guttate psoriasis", "Parapsoriasis",
@@ -62,11 +62,11 @@ ALL_LABELS = list(MAIN8) + AUXILIARY + EXTRA_SUGGESTIONS
 
 
 def _load_suggestions() -> list[str]:
-    """输入框联想提示：优先使用作者原实验的 445 个诊断名（dx_options_445.txt）。
+    """Predictive text for the input box: prefer the 445 diagnosis names from the authors' original experiment (dx_options_445.txt).
 
-    来源：ResearchBox #1802 Analysis.ipynb 第 89 个单元格的 possible_options（CC BY 4.0），
-    与论文 Methods "predictive text based on 445 possible diagnoses" 对应；原名单有 3 个重复项，去重后 442 个。
-    文件不存在时退回到上面的精简名单。只影响联想提示，不影响判分。"""
+    Source: possible_options in cell 89 of Analysis.ipynb, ResearchBox #1802 (CC BY 4.0),
+    matching the paper's Methods ("predictive text based on 445 possible diagnoses"); the original list has 3 duplicates, leaving 442.
+    If the file is missing, fall back to the short list above. This affects only the predictive text, not grading."""
     from pathlib import Path
     p = Path(__file__).with_name("dx_options_445.txt")
     if not p.exists():
@@ -118,8 +118,8 @@ def _tokens(s: str) -> list[str]:
 
 
 def _fuzzy_ok(cand: str, syn: str, cutoff: float) -> bool:
-    """拼写错误容忍：整体足够相似，且逐词比较时短词（≤3 个字母，如 t / b）必须完全一致，
-    避免把 "cutaneous b-cell lymphoma" 误判成 "cutaneous t-cell lymphoma"。"""
+    """Typo tolerance: similar enough overall, and in a word-by-word comparison short words (≤3 letters, e.g. t / b) must match exactly,
+    so that "cutaneous b-cell lymphoma" is not graded as "cutaneous t-cell lymphoma"."""
     if difflib.SequenceMatcher(None, cand, syn).ratio() < cutoff:
         return False
     ct, st = _tokens(cand), _tokens(syn)
@@ -135,7 +135,7 @@ def _fuzzy_ok(cand: str, syn: str, cutoff: float) -> bool:
 
 
 def matches(answer: str, label: str, fuzzy_cutoff: float = 0.86) -> bool:
-    """判断自由作答 `answer` 是否等于参考诊断 `label`（容忍同义词、简写、拼写错误）。"""
+    """Decide whether the free-text answer `answer` equals the reference diagnosis `label` (tolerating synonyms, abbreviations and typos)."""
     if not answer or not label:
         return False
     syns = _synonyms(label)
@@ -143,10 +143,10 @@ def matches(answer: str, label: str, fuzzy_cutoff: float = 0.86) -> bool:
         for syn in syns:
             if cand == syn:
                 return True
-            # 多词同义词：作为完整短语出现即可（例如 "secondary syphilis rash"）
+            # Multi-word synonym: it is enough for it to appear as a whole phrase (e.g. "secondary syphilis rash")
             if " " in syn and re.search(rf"(^|\s){re.escape(syn)}(\s|$)", cand):
                 return True
-        # 拼写错误：与任一同义词足够相似（短缩写不做模糊匹配，避免误判）
+        # Typos: similar enough to any synonym (short abbreviations are not fuzzy-matched, to avoid false matches)
         if len(cand) >= 6:
             for syn in syns:
                 if len(syn) >= 6 and _fuzzy_ok(cand, syn, fuzzy_cutoff):
@@ -155,7 +155,7 @@ def matches(answer: str, label: str, fuzzy_cutoff: float = 0.86) -> bool:
 
 
 def canonical(answer: str) -> str:
-    """把一个自由作答归一到已知标签（找不到就返回清洗后的原文），用于统计"最常见错误答案"。"""
+    """Map a free-text answer to a known label (or return the cleaned text if none matches); used to count the "most common incorrect answer"."""
     if not answer:
         return ""
     for label in ALL_LABELS:

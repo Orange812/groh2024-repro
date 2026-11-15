@@ -1,20 +1,20 @@
 """
-制造「增强 AI」（Treatment DLS）——论文的 Wizard-of-Oz 方法
+Build the "enhanced AI" (treatment DLS) — the paper's Wizard-of-Oz method
 
-论文原文做法：把对照 AI 的错误预测随机挑出 65%，直接改成正确答案，
-于是 top-1 准确率从 47% 提升到约 84%。这个"假装更强"的 AI 用来模拟未来更准确的系统，
-研究目的不是评估 AI 本身，而是看更准的 AI 如何影响医生决策。
+What the paper did: pick 65% of the control AI's wrong predictions at random and change them to the correct answer,
+which raises top-1 accuracy from 47% to about 84%. This "pretend-stronger" AI simulates a future, more accurate system;
+the aim is not to evaluate the AI itself but to see how a more accurate AI affects physicians' decisions.
 
-关于 84%：47% + (1 − 47%) × 65% ≈ 81%。用作者数据核对（logs/step7_woz/woz_reproduce.py）：
-增强 AI 在全部 363 张有标签图片上是 81.8%，在 8 种主要疾病上是 84.2%。
-也就是说，论文的 84% 是 8 种主要疾病上的准确率，并没有无法解释的差距。
+About the 84%: 47% + (1 − 47%) × 65% ≈ 81%. Checked against the authors' data (logs/step7_woz/woz_reproduce.py):
+the enhanced AI scores 81.8% on all 363 labelled images and 84.2% on the 8 main conditions.
+So the paper's 84% is the accuracy on the 8 main conditions; there is no unexplained gap.
 
-输入 CSV 需要两列：label（真实 9 类标签，"其他"类写 Other）和 pred（对照 AI 的预测）；可选 fst 列。
-用法：
-  python dls/wizard_of_oz.py --pred 预测.csv --out 增强后预测.csv          # 每个错误预测独立以 65% 概率改对
-  python dls/wizard_of_oz.py --pred 预测.csv --exact                      # 正好改对 65% 的错误预测（结果不随种子大起大落）
-  python dls/wizard_of_oz.py --demo                                       # 不需要数据，用随机数据演示
-作者真实的对照 AI 预测可以用 logs/step7_woz/woz_input.csv（由 woz_reproduce.py 从作者数据生成）。
+The input CSV needs two columns: label (true 9-class label; write Other for the "other" class) and pred (the control AI's prediction); an fst column is optional.
+Usage:
+  python dls/wizard_of_oz.py --pred predictions.csv --out enhanced.csv     # flip each wrong prediction to correct independently with probability 65%
+  python dls/wizard_of_oz.py --pred predictions.csv --exact                # flip exactly 65% of the wrong predictions (results don't swing with the seed)
+  python dls/wizard_of_oz.py --demo                                        # no data needed: demo on random data
+The authors' real control-AI predictions are in logs/step7_woz/woz_input.csv (generated from the authors' data by woz_reproduce.py).
 """
 from __future__ import annotations
 
@@ -26,10 +26,10 @@ import pandas as pd
 
 def enhance(df: pd.DataFrame, flip_rate: float = 0.65, seed: int = 0,
             label_col: str = "label", pred_col: str = "pred", exact: bool = False) -> pd.Series:
-    """返回增强后的预测：错误预测中 flip_rate 比例被改为正确答案，正确预测保持不变。
+    """Return the enhanced predictions: a flip_rate share of the wrong predictions is changed to the correct answer; correct predictions are unchanged.
 
-    exact=False：每个错误预测独立以 flip_rate 的概率被改对（改对的总数会随种子波动）；
-    exact=True ：正好改对 round(flip_rate × 错误数) 个，只随机决定改哪些。"""
+    exact=False: each wrong prediction is corrected independently with probability flip_rate (the number corrected varies with the seed);
+    exact=True:  exactly round(flip_rate × n_wrong) are corrected; only which ones is random."""
     rng = np.random.default_rng(seed)
     wrong = (df[pred_col] != df[label_col]).to_numpy()
     if exact:
@@ -47,21 +47,21 @@ def report(df, pred_col, fst_col="fst"):
     s = f"{ok.mean():.1%}"
     if fst_col in df and df[fst_col].notna().any():
         dark = pd.to_numeric(df[fst_col], errors="coerce") >= 5
-        s += f"（浅色 FST1–4：{ok[~dark].mean():.1%}，深色 FST5–6：{ok[dark].mean():.1%}）"
+        s += f" (light FST1–4: {ok[~dark].mean():.1%}, dark FST5–6: {ok[dark].mean():.1%})"
     main8 = df["label"].astype(str).str.lower() != "other"
     if (~main8).any():
-        s += f"；8 种主要疾病：{ok[main8].mean():.1%}"
+        s += f"; 8 main conditions: {ok[main8].mean():.1%}"
     return s
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Wizard-of-Oz：把对照 AI 增强为高准确率 AI")
-    ap.add_argument("--pred", help="含 label 和 pred 列的 CSV")
+    ap = argparse.ArgumentParser(description="Wizard of Oz: turn the control AI into a high-accuracy AI")
+    ap.add_argument("--pred", help="CSV with label and pred columns")
     ap.add_argument("--out", default="treatment_predictions.csv")
     ap.add_argument("--flip-rate", type=float, default=0.65)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--exact", action="store_true", help="正好改对 flip-rate 比例的错误预测（默认逐个独立随机）")
-    ap.add_argument("--demo", action="store_true", help="不需要数据，用随机生成的 364 张图演示")
+    ap.add_argument("--exact", action="store_true", help="correct exactly a flip-rate share of the wrong predictions (default: each one independently at random)")
+    ap.add_argument("--demo", action="store_true", help="no data needed: demo on 364 randomly generated images")
     a = ap.parse_args()
 
     if a.demo or not a.pred:
@@ -71,7 +71,7 @@ def main():
         wrong = np.array([rng.choice([c for c in classes if c != l]) for l in label])
         pred = np.where(rng.random(364) < 0.47, label, wrong)
         df = pd.DataFrame({"label": label, "pred": pred, "fst": rng.integers(1, 7, 364)})
-        print("[演示模式] 随机生成 364 张图片的 '对照 AI' 预测")
+        print("[demo mode] generating random 'control AI' predictions for 364 images")
     else:
         df = pd.read_csv(a.pred)
 
@@ -79,14 +79,14 @@ def main():
     n_wrong = int((df.pred != df.label).sum())
     n_flip = int(((df.pred != df.label) & (df.pred_treatment == df.label)).sum())
     p = (df.pred == df.label).mean()
-    print(f"对照 AI 准确率：{report(df, 'pred')}")
-    print(f"增强 AI 准确率：{report(df, 'pred_treatment')}")
-    print(f"   错误预测 {n_wrong} 个，改对 {n_flip} 个（{n_flip / max(n_wrong, 1):.1%}；"
-          f"{'正好按比例' if a.exact else '逐个独立随机，种子 ' + str(a.seed)}）")
-    print(f"理论值：p + (1 − p) × {a.flip_rate} = {p + (1 - p) * a.flip_rate:.1%}")
+    print(f"Control AI accuracy:  {report(df, 'pred')}")
+    print(f"Enhanced AI accuracy: {report(df, 'pred_treatment')}")
+    print(f"   {n_wrong} wrong predictions, {n_flip} corrected ({n_flip / max(n_wrong, 1):.1%}; "
+          f"{'exact share' if a.exact else 'each independently at random, seed ' + str(a.seed)})")
+    print(f"Expected: p + (1 − p) × {a.flip_rate} = {p + (1 - p) * a.flip_rate:.1%}")
     if not a.demo and a.pred:
         df.to_csv(a.out, index=False)
-        print(f"已写入 {a.out}")
+        print(f"Wrote {a.out}")
 
 
 if __name__ == "__main__":
