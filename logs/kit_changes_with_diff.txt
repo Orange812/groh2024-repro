@@ -1,9 +1,9 @@
-# Full diff of every change to groh2024_repro_kit since the baseline (fe9e009 = toolkit as received).
+# Full diff of every change to groh2024_repro_kit since the baseline (412b3e9 = toolkit as received).
 # Note: the toolkit was originally commented in Chinese. For readability, the Chinese comments and strings
 # in these diffs have been translated into English; code and numbers are unchanged. The verbatim diffs are
-# in the repository history: git log -p fe9e009..7947102
+# in the repository history: git log -p 412b3e9..447395a
 
-commit 794710296859c67e8dfb4ce06a6c3609288dd3ca
+commit 447395ab4c5c4d48130a16e368d8414c6775168e
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 21:10:03 2026 -0500
 
@@ -17,8 +17,6 @@ Date:   Wed Nov 11 21:10:03 2026 -0500
     conditions. Docstring: the author's data shows the treatment DLS is 81.8% on
     all labelled images and 84.2% on the 8 main conditions, so the paper's 84%
     refers to the 8 main conditions (see logs/step7_woz/woz_reproduce.py).
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/dls/wizard_of_oz.py b/dls/wizard_of_oz.py
 index 9cbe316..18461ff 100644
@@ -119,7 +117,7 @@ index 9cbe316..18461ff 100644
          df.to_csv(a.out, index=False)
          print(f"Wrote {a.out}")
 
-commit 563b3d7024768d099912adaedd83318d87a0fac3
+commit 1fe44de9402b1ea1795b917ef1afc0345350a708
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 20:58:33 2026 -0500
 
@@ -130,8 +128,6 @@ Date:   Wed Nov 11 20:58:33 2026 -0500
     images are now drawn from those diseases (28 of 35 non-acne ones are still
     downloadable from F17k), one image per disease.
     New demo set: acne attention check + 7 main diseases (23 images) + 6 auxiliary.
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/demo_app/data/images.csv b/demo_app/data/images.csv
 index e5f1909..3083c62 100644
@@ -195,7 +191,7 @@ index 1cd99d8..d99f381 100644
          if len(res) < n:
              short.append(f"{dis} ({len(res)}/{n})")
 
-commit f0b8e5ad5a05de4b7c8cd9bd213f3c2a1e78ee63
+commit c43ba14681554a449bb5277a5ad639701e778d67
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 20:58:33 2026 -0500
 
@@ -208,8 +204,6 @@ Date:   Wed Nov 11 20:58:33 2026 -0500
     paper) and exactly round(65%) of the wrong ones are flipped, chosen by a
     deterministic per-image hash, so every participant still sees the same
     suggestion for the same image. Real predictions (dls_pred_control) still win.
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/demo_app/app.py b/demo_app/app.py
 index 4878294..6c79968 100644
@@ -270,7 +264,7 @@ index 4878294..6c79968 100644
              "credit": r.get("credit", ""),
              "suggestion": {"control": aux if pred == "Other" else pred,
 
-commit 2e3571324ce77c802d6b4dee341085e1567816ca
+commit 08a2ce81c9c74ad7effc7084188035e6e21465bc
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 20:55:56 2026 -0500
 
@@ -285,8 +279,6 @@ Date:   Wed Nov 11 20:55:56 2026 -0500
     1 acne attention-check image, CTCL/DM/LP/PR/PRP x4, atopic dermatitis x2 and
     Lyme x1 (all that remain downloadable), 6 other conditions. Secondary syphilis
     has no F17k label. Image files are not committed (CC BY-NC-SA 3.0, re-downloadable).
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/demo_app/data/images.csv b/demo_app/data/images.csv
 index 37be4d7..e5f1909 100644
@@ -492,7 +484,7 @@ index 30a8fcc..1cd99d8 100644
  
  
 
-commit e43803a37ef55c5a1ef295f6964599eefcad96fa
+commit 16585a8197c4b3dad95a448e6dd8cc1e626465e7
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 20:53:21 2026 -0500
 
@@ -506,8 +498,6 @@ Date:   Wed Nov 11 20:53:21 2026 -0500
     (FOLDER_OK) and drops qc == '3 Wrongly labelled'; --no-label-check disables it.
     Atlas URLs without a folder (atlasdermatologico) cannot be checked and are kept.
     Credit line now names the source site for attribution.
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/dls/fetch_f17k_images.py b/dls/fetch_f17k_images.py
 index a96f78a..30a8fcc 100644
@@ -616,7 +606,7 @@ index a96f78a..30a8fcc 100644
      out = ROOT / "demo_app" / "data" / "images.csv"
      if not rows:
 
-commit 2c48153daaef5975be509853bfec7a0262208c04
+commit bca9b38fb4c7ace8f33e931221e1f4e88a3b4a54
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 20:51:14 2026 -0500
 
@@ -628,8 +618,6 @@ Date:   Wed Nov 11 20:51:14 2026 -0500
     suffient_training). Physician-type values keep their short codes (BCD/PCP/...)
     so the analysis is unchanged; 'Student' stays as a classroom-only option.
     key_results.py: patient-mix moderator now recognises 'Mostly/All white patients'.
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/analysis/key_results.py b/analysis/key_results.py
 index 462e125..fcab130 100644
@@ -718,7 +706,7 @@ index 79a0db4..74ccef2 100644
  
      <label>7. Which country do you live in?
 
-commit 45451d60199d83b62b7704a30146b4064eedc68a
+commit 4c846452bb6893ab1543e2539fc63ddd25b63ad1
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 20:50:28 2026 -0500
 
@@ -729,8 +717,6 @@ Date:   Wed Nov 11 20:50:28 2026 -0500
     possible_options in cell 89 of the author's Analysis.ipynb (ResearchBox 1802,
     CC BY 4.0); saved verbatim to common/dx_options_445.txt (442 unique).
     Only the datalist changes; grading (matches/in_differential) is unchanged.
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/common/diseases.py b/common/diseases.py
 index df907e5..46a2c2c 100644

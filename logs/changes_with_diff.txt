@@ -1,6 +1,6 @@
 # Full diff of every change to the author's code since the baseline (26068be = files as downloaded).
 
-commit 395b201d47dbfcb3261c5614a7a1d8142f53009a
+commit 96281efa2ce82d5420dc34e7f5152e278abcf6b5
 Author: Orange812 <178688857+Orange812@users.noreply.github.com>
 Date:   Wed Nov 11 19:47:06 2026 -0500
 
@@ -8,8 +8,6 @@ Date:   Wed Nov 11 19:47:06 2026 -0500
     
     The notebook reads ../Data/Experimental Data.csv, but ResearchBox ships only
     the .zip (single file, no __MACOSX). pandas reads a single-file zip directly.
-    
-    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 diff --git a/ResearchBox 1802/Code/Analysis.ipynb b/ResearchBox 1802/Code/Analysis.ipynb
 index 6eac4ba..451e742 100644
