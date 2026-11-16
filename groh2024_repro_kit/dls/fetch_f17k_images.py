@@ -3,16 +3,22 @@ Download images from the public Fitzpatrick 17k dataset: for the classroom demo 
 
 Why: the 364 images used in the paper's experiment are on Zenodo (doi:10.5281/zenodo.10070478),
 which requires registering and agreeing to "research/medical use only, delete after use"; they may not be redistributed publicly.
-The classroom demo can use Fitzpatrick 17k instead (a public dataset from the same research group, CC BY-NC-SA 3.0: non-commercial use with attribution).
+The classroom demo can use Fitzpatrick 17k instead (a public dataset from the same research group). Its CC BY-NC-SA 3.0 licence most likely covers only
+the annotations; the images were collected from the Atlas Dermatologico and DermaAmin websites, so each user downloads them rather than redistributing them.
 
 Preparation: download fitzpatrick17k.csv from https://github.com/mattgroh/fitzpatrick17k
+(in this repository it is ../data/fitzpatrick17k.csv; run the commands below from groh2024_repro_kit/)
 
   # demo mode: 4 images for each of the 8 main conditions (half dark, half light skin where possible) + 6 other diseases + 1 acne attention-check image
-  python dls/fetch_f17k_images.py --csv fitzpatrick17k.csv --per-class 4 --n-other 6
+  python dls/fetch_f17k_images.py --csv ../data/fitzpatrick17k.csv --per-class 4 --n-other 6
     → images are saved to demo_app/static/images/ and the list is written to demo_app/data/images.csv
 
+  # list mode: download exactly the images named in demo_app/data/images.csv (the list is not changed).
+  # This restores the 30 demo images used in the recorded runs; they are not stored in the repository.
+  python dls/fetch_f17k_images.py --csv ../data/fitzpatrick17k.csv --mode list
+
   # training mode: at most 300 images for each of 9 classes (8 main conditions + Other), for train_control_dls.py
-  python dls/fetch_f17k_images.py --csv fitzpatrick17k.csv --mode training --per-class 300 \
+  python dls/fetch_f17k_images.py --csv ../data/fitzpatrick17k.csv --mode training --per-class 300 \
       --out-dir f17k_images --train-csv f17k_train.csv
 
 Note: images are downloaded from the url column (the original atlas websites); dead links are skipped automatically;
@@ -21,6 +27,7 @@ if many fail, request the full image set from the authors via the form in the Fi
 from __future__ import annotations
 
 import argparse
+import hashlib
 import re
 import sys
 import time
@@ -166,7 +173,9 @@ def fetch_quota(cands: pd.DataFrame, n: int, out_dir: Path, workers: int, max_tr
 def main():
     ap = argparse.ArgumentParser(description="Download Fitzpatrick17k images")
     ap.add_argument("--csv", required=True, help="fitzpatrick17k.csv")
-    ap.add_argument("--mode", choices=["demo", "training"], default="demo")
+    ap.add_argument("--mode", choices=["demo", "training", "list"], default="demo")
+    ap.add_argument("--list", default=str(ROOT / "demo_app" / "data" / "images.csv"),
+                    help="list mode: image list whose files are downloaded (the list itself is not changed)")
     ap.add_argument("--per-class", type=int, default=4, help="demo: images per main condition; training: maximum images per class (9 classes)")
     ap.add_argument("--n-other", type=int, default=6, help="demo mode: number of extra images of other diseases")
     ap.add_argument("--out-dir", default="f17k_images", help="image folder for training mode")
@@ -183,6 +192,32 @@ def main():
     fst_col = next(c for c in ("fitzpatrick_scale", "fitzpatrick", "fitzpatrick_centaur") if c in df)
     df["fst"] = pd.to_numeric(df[fst_col], errors="coerce")
     df = df[df.url.notna() & df.md5hash.notna()]
+
+    if a.mode == "list":
+        # File names are the Fitzpatrick17k md5hash + ".jpg", and md5hash is the MD5 of the image file,
+        # so each download can be checked against the exact image used in the recorded runs.
+        want = pd.read_csv(a.list)
+        want = want[want.file.fillna("").astype(str).str.endswith(".jpg")]
+        names = set(want.file.str[:-4])
+        plan = df[df.md5hash.isin(names)].drop_duplicates("md5hash")
+        print(f"{len(names)} images listed in {a.list}; {len(plan)} found in {a.csv}")
+        if a.dry_run:
+            return
+        img_dir = ROOT / "demo_app" / "static" / "images"
+        ok = fetch_all(plan, img_dir, a.workers)
+        bad = []
+        for h in plan.md5hash[ok]:
+            f = img_dir / f"{h}.jpg"
+            if hashlib.md5(f.read_bytes()).hexdigest() != h:
+                bad.append(f.name)
+                f.unlink()
+        failed = sorted(set(plan.md5hash[~ok]) | (names - set(plan.md5hash)))
+        print(f"{ok.sum() - len(bad)} / {len(names)} images present and verified (MD5) in {img_dir}")
+        if bad:
+            print("Removed (content differs from the listed image): " + ", ".join(bad))
+        if failed:
+            print("Not available: " + ", ".join(f + ".jpg" for f in failed) + " (the demo shows placeholders instead)")
+        return
 
     labels = sorted(df.label.dropna().unique())
     hits = {dis: [l for l in labels if matches(l, dis)] for dis in MAIN8}

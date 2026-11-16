@@ -11,6 +11,10 @@ data/zenodo_images/
 # Local backup of the two git repositories that were merged into this one
 .subrepo-backup/
 
+# Fitzpatrick17k demo images: listed in groh2024_repro_kit/demo_app/data/images.csv but not redistributed
+# (their copyright most likely stays with the source atlases). Download: python dls/fetch_f17k_images.py --csv ../data/fitzpatrick17k.csv --mode list
+groh2024_repro_kit/demo_app/static/images/*.jpg
+
 # Demo website runtime data (classroom/test responses and automatic backups)
 groh2024_repro_kit/demo_app/data/responses*.csv
 groh2024_repro_kit/demo_app/data/images_backup_*.csv
