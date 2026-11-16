@@ -64,7 +64,7 @@ ALL_LABELS = list(MAIN8) + AUXILIARY + EXTRA_SUGGESTIONS
 def _load_suggestions() -> list[str]:
     """Predictive text for the input box: prefer the 445 diagnosis names from the authors' original experiment (dx_options_445.txt).
 
-    Source: possible_options in cell 89 of Analysis.ipynb, ResearchBox #1802 (CC BY 4.0),
+    Source: possible_options in cell 89 (In [60]) of Analysis.ipynb, ResearchBox #1802 (CC BY 4.0),
     matching the paper's Methods ("predictive text based on 445 possible diagnoses"); the original list has 3 duplicates, leaving 442.
     If the file is missing, fall back to the short list above. This affects only the predictive text, not grading."""
     from pathlib import Path

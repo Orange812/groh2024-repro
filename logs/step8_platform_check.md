@@ -1,6 +1,6 @@
 # Step 8 record: replicating the experiment platform
 
-Date: 2026-11-11 · Environment: `groh` (with flask) · Replica code: `groh2024_repro_kit/demo_app/` (under git; baseline commit `fe9e009`)
+Date: 2026-11-11 · Environment: `groh` (with flask) · Replica code: `groh2024_repro_kit/demo_app/` (under git; baseline commit `412b3e9`)
 
 The authors did not release the code of the original experiment website (https://diagnosing-diagnosis.media.mit.edu). The replica below was rebuilt from the paper's Methods ("Experimental interface", "Randomization protocol"), using **the authors' public data** to restore original details wherever possible. It can demonstrate the full experimental flow and collect a small classroom sample, but it is no substitute for the original experiment (1,118 physicians, 364 restricted images).
 
@@ -14,7 +14,7 @@ Quotations are from the PMC version of the paper (PMC10878981). "Automated check
 | 2 | Per-participant randomisation over two factors, AI (control/enhanced) × interface (button order), "with an equal weight" | Each participant gets an independent `random.choice` for each factor at the start; lectern mode can fix the arm with URL parameters | ✅ Match |
 | 3 | Everyone's first image is the same acne image, used as an attention check; the other images are in random order | Image 1 is always the acne image; the rest are shuffled (automated check: all 8 people saw different orders) | ✅ Match (the original image shows acne on a woman's face; the replica uses a public image of acne on the back) |
 | 4 | Up to 3 free-text differential diagnoses, with placeholders 'Type leading / secondary / tertiary differential diagnosis' | Three input boxes with the same placeholder text, word for word | ✅ Match |
-| 5 | Predictive text based on **445** diagnoses ("predictive text based on 445 possible diagnoses") | **Changed to the authors' original list**: `possible_options` from cell 89 of the authors' notebook (445 entries, 442 after de-duplication) | ✅ Match (the toolkit as received had only 98) |
+| 5 | Predictive text based on **445** diagnoses ("predictive text based on 445 possible diagnoses") | **Changed to the authors' original list**: `possible_options` from cell 89 (In [60]) of the authors' notebook (445 entries, 442 after de-duplication) | ✅ Match (the toolkit as received had only 98) |
 | 6 | Confidence slider 0–100% (the Results mention that most people kept the default of 50%) | Slider 0–100, default 50 | ✅ Match |
 | 7 | Check boxes for recommending a biopsy and for referral to a dermatologist; "BCDs are not asked whether they would refer to a dermatologist" | Same; the referral option is hidden when BCD is selected (automated check passes) | ✅ Match |
 | 8 | Participants are told only that "the AI model is not perfectly accurate"; its accuracy is not disclosed | The instructions and the suggestion page contain only this sentence | ✅ Match |
@@ -24,22 +24,22 @@ Quotations are from the PMC version of the paper (PMC10878981). "Automated check
 | 12 | The feedback page shows the reference diagnosis and other participants' most common incorrect answer; fireworks when the answer is right | Same | ✅ Match |
 | 13 | After 10 images, a bar chart compares the participant, dermatologists, primary care physicians and the AI, and the participant can keep going | Same; the dermatologist/PCP values are the averages published in the paper (38%, 19%) | ✅ Match |
 | 14 | Control AI: VGG-16, 47% accurate on the 364 images; enhanced AI: 65% of the wrong predictions randomly corrected (Wizard of Oz) | Without a trained model, predictions are **simulated**, **now by quota**: exactly 47% of images are predicted correctly and exactly 65% of the wrong predictions are corrected (48% / 83% on the current 29 images). `dls/predict.py --update-demo` writes in a real model's predictions | ⚠️ Simulated (reproducing the model is step 7) |
-| 15 | 364 experiment images (Zenodo, restricted access) | 30 **public Fitzpatrick17k images** (CC BY-NC-SA 3.0): 1 acne attention-check image + 23 images of 7 main conditions + 1 each of 6 auxiliary diseases | ⚠️ Substitute (see the limitations in section 3) |
+| 15 | 364 experiment images (Zenodo, restricted access) | 30 **public Fitzpatrick17k images** (from atlasdermatologico.com.br): 1 acne attention-check image + 23 images of 7 main conditions + 1 each of 6 auxiliary diseases. The image files are not stored in the repository (their copyright most likely stays with the source atlas); `demo_app/data/images.csv` lists them and `dls/fetch_f17k_images.py --mode list` downloads exactly these files and checks their MD5 | ⚠️ Substitute (see the limitations in section 3) |
 | 16 | The website was built with Python + Flask | The replica also uses Flask | ✅ Match |
 | 17 | The authors graded every free-text answer by hand (2,348 distinct strings) | The replica grades automatically (synonyms + typo tolerance). Validated on the authors' data: agreement with the manual grading is **98.9%** on the 8 main conditions (9,368 answers) and 91.0% on other diseases (`step8/grader_agreement_output.txt`) | ⚠️ Approximation, validated |
 
-## 2. Changes made to the replica (`git log --oneline fe9e009..7947102`)
+## 2. Changes made to the replica (`git log --oneline 412b3e9..447395a`)
 
 | Commit | Change | Basis |
 |---|---|---|
-| `45451d6` | Predictive text switched to the authors' 445 diagnoses | Paper's Methods; cell 89 of the authors' notebook |
-| `2c48153` | Survey options switched to the original experiment's options; the analysis script recognises "Mostly/All white patients" | Actual values of `years_experience`, `patient_distribution`, `trouble_*_patients`, `suffient_training` in the authors' data |
-| `e43803a` | When downloading public images, labels are checked against the URL and mislabelled images dropped | F17k label noise (section 3) |
-| `2e35713` | Dead image hosts are skipped and each class is filled image by image; demo image set downloaded | Dead dermaamin.com links (section 3) |
-| `f0b8e5a` | AI accuracy simulated by quota instead of an independent coin flip per image | With few images, independent draws are badly biased: only 38% / 66% on 29 images |
-| `563b3d7` | "Other disease" images are drawn only from the paper's 36 auxiliary diseases | The paper's 80 non-main-condition images are exactly these 36 |
+| `4c84645` | Predictive text switched to the authors' 445 diagnoses | Paper's Methods; cell 89 (In [60]) of the authors' notebook |
+| `bca9b38` | Survey options switched to the original experiment's options; the analysis script recognises "Mostly/All white patients" | Actual values of `years_experience`, `patient_distribution`, `trouble_*_patients`, `suffient_training` in the authors' data |
+| `16585a8` | When downloading public images, labels are checked against the URL and mislabelled images dropped | F17k label noise (section 3) |
+| `08a2ce8` | Dead image hosts are skipped and each class is filled image by image; demo image set downloaded | Dead dermaamin.com links (section 3) |
+| `c43ba14` | AI accuracy simulated by quota instead of an independent coin flip per image | With few images, independent draws are badly biased: only 38% / 66% on 29 images |
+| `1fe44de` | "Other disease" images are drawn only from the paper's 36 auxiliary diseases | The paper's 80 non-main-condition images are exactly these 36 |
 
-To see all changes: `git diff fe9e009 7947102 --stat`.
+To see all changes: `git diff 412b3e9 447395a --stat`.
 
 ## 3. Limitations and findings (for the report)
 
@@ -54,6 +54,7 @@ To see all changes: `git diff fe9e009 7947102 --stat`.
 ```bash
 conda activate groh
 cd groh2024_repro_kit                     # from the repository root
+python dls/fetch_f17k_images.py --csv ../data/fitzpatrick17k.csv --mode list   # once: download the 30 demo images
 python demo_app/app.py --port 5050        # should print: Loaded 30 images (30 real images, …)
 ```
 

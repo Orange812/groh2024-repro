@@ -4,7 +4,7 @@ images: 364 in data, 363 with labels and predictions (excluded: 1 image without 
 control correct (170 images): treatment identical in 100%
 control wrong   (193 images): flipped to the truth 127, unchanged 66, changed to another wrong label 0
 flip rate among wrong predictions: 127/193 = 65.8%   (paper: 65%)
-  note: 127 is also the number printed by the author's notebook (cell 95: print(127/364))
+  note: 127 is also the number printed by the author's notebook (cell 95 (In [64]): print(127/364))
 
 == 2. Accuracy (9-class top-1) vs paper ==
 subset                control  paper  treatment  paper

@@ -8,7 +8,7 @@ Run date: 2026-11-11 · Environment: `groh-orig` (conda-forge Python 3.9.23 + `p
 |---|---|
 | Do the authors' dependencies install as is? | **Yes.** `requirements.txt` installed in one go in `groh-orig` (`logs/groh-orig_pip_install.log`); the compatible fallback environment `groh` was not needed |
 | Key package versions | pandas 2.1.0, numpy 1.26.0, scipy 1.11.2, matplotlib 3.8.0, seaborn 0.12.2, statsmodels 0.14.0, stargazer 0.0.6, scikit-learn 1.3.0 (exactly as in `requirements.txt`; see `pip_freeze.txt`) |
-| Changes to the authors' code | **Only 1**: data path `../Data/Experimental Data.csv` → `../Data/Experimental Data.csv.zip` (commit `395b201`). Not one line of analysis code was changed |
+| Changes to the authors' code | **Only 1**: data path `../Data/Experimental Data.csv` → `../Data/Experimental Data.csv.zip` (commit `96281ef`). Not one line of analysis code was changed |
 | Restart & Run All | All 120 cells ran, **0 errors** (about 75 seconds) |
 | Comparison with the authors' saved outputs | The 80 code cells with output are **identical character for character** (only the `Date/Time` run timestamps in the statsmodels summaries differ; `step5_supplement/compare_outputs_result.txt`) |
 | Output files | `analysis_run.html`, `analysis_run.ipynb`; 26 figures in `work/ResearchBox 1802/Code/figs/` |
@@ -29,52 +29,54 @@ Criteria (from the reproduction guide): **match** = identical after rounding to 
 
 ## 3. Verification tables
 
+Cell numbers: "cell N" is the cell's 0-based position in `Analysis.ipynb`, counting Markdown cells too (what JSON/nbformat tools report); "In [k]" is the execution number Jupyter shows next to the cell after Run All. Both are the same in the authors' saved notebook and in my run. Example: cell 59 / In [42] is the 60th cell of the notebook.
+
 ### 5.1 Sample sizes
 
 | Check | Paper | Reproduced | Status |
 |---|---|---|---|
-| Total participants and diagnoses | 1,118 participants, 14,261 differential diagnoses (Fig. 1 says N = 1,120) | 1,118 participants, 14,261 diagnoses, 364 images (cell 29) | ✅ Match (Fig. 1's 1,120 does not match the data) |
-| Per physician type: participants / diagnoses | BCD 389/5,365; residents 116/1,691; PCP 459/5,458; other 154/1,747 | Identical (cell 29) | ✅ Match |
+| Total participants and diagnoses | 1,118 participants, 14,261 differential diagnoses (Fig. 1 says N = 1,120) | 1,118 participants, 14,261 diagnoses, 364 images (cell 29 / In [21]) | ✅ Match (Fig. 1's 1,120 does not match the data) |
+| Per physician type: participants / diagnoses | BCD 389/5,365; residents 116/1,691; PCP 459/5,458; other 154/1,747 | Identical (cell 29 / In [21]) | ✅ Match |
 | Attention-check pass rate | BCD, PCP, other 98%; residents 96% | 98.2%, 98.0%, 98.1%; 95.7% | ✅ Match |
-| Main-analysis sample | BCD 296/2,660; residents 83/747; PCP 350/3,150; other 113/1,015 | Identical (cell 29) | ✅ Match |
-| Participants per randomised arm | BCD 75/64/83/74; PCP 79/85/87/99 | Identical (cell 96) | ✅ Match |
-| Image set | 364 images, 46 diseases; 284 images of the 8 main conditions (31/48/34/30/32/33/47/29); FST 5–6 = 32% | 364 images; **44** `consensus_label` values, plus 1 image with a missing label (file name says rosacea, which is among the 44); counts for the 8 conditions identical; FST 5–6 = 31.9% (cell 92, †S1) | ⚠️ Partial mismatch: 44 ≠ 46 diseases |
-| Observations on the 8 main conditions (Fig. 5) | BCD 2,079; PCP 2,496 | 2,079; 2,496 (cell 61) | ✅ Match |
+| Main-analysis sample | BCD 296/2,660; residents 83/747; PCP 350/3,150; other 113/1,015 | Identical (cell 29 / In [21]) | ✅ Match |
+| Participants per randomised arm | BCD 75/64/83/74; PCP 79/85/87/99 | Identical (cell 96 / In [65]) | ✅ Match |
+| Image set | 364 images, 46 diseases; 284 images of the 8 main conditions (31/48/34/30/32/33/47/29); FST 5–6 = 32% | 364 images; **44** `consensus_label` values, plus 1 image with a missing label (file name says rosacea, which is among the 44); counts for the 8 conditions identical; FST 5–6 = 31.9% (cell 92 / In [62], †S1) | ⚠️ Partial mismatch: 44 ≠ 46 diseases |
+| Observations on the 8 main conditions (Fig. 5) | BCD 2,079; PCP 2,496 | 2,079; 2,496 (cell 61 / In [43]) | ✅ Match |
 
 ### 5.2 Figures and numbers in the text
 
 | # | Location in paper | Paper | Reproduced (source) | Status |
 |---|---|---|---|---|
-| 1 | Text: accuracy on all images | top-3 38/36/19/18%; top-1 27/24/14/13% | top-3 38.4/35.6/18.7/17.6; top-1 27.0/24.4/14.1/12.6 (cells 32, 34) | ✅ Match |
-| 2 | Fig. 2a: 8 conditions | top-1 27/24/13/12%; top-3 37/35/17/16% | top-1 27.3/24.2/13.2/12.2; top-3 37.2/34.7/16.9/16.0 (cells 33, 35) | ✅ Match |
-| 3 | Fig. 2b: BCD vs PCP (top-3) | 7 conditions + Other significant (P<0.001), 1 not significant | Lyme P = 0.598; the other 8 groups P ≤ 3.1×10⁻⁵ (cell 10) | ✅ Match |
+| 1 | Text: accuracy on all images | top-3 38/36/19/18%; top-1 27/24/14/13% | top-3 38.4/35.6/18.7/17.6; top-1 27.0/24.4/14.1/12.6 (cells 32 / In [22], 34 / In [24]) | ✅ Match |
+| 2 | Fig. 2a: 8 conditions | top-1 27/24/13/12%; top-3 37/35/17/16% | top-1 27.3/24.2/13.2/12.2; top-3 37.2/34.7/16.9/16.0 (cells 33 / In [23], 35 / In [25]) | ✅ Match |
+| 3 | Fig. 2b: BCD vs PCP (top-3) | 7 conditions + Other significant (P<0.001), 1 not significant | Lyme P = 0.598; the other 8 groups P ≤ 3.1×10⁻⁵ (cell 10 / In [8]) | ✅ Match |
 | 4 | Ext. Data Tables 1–2: confusion matrices | Cell by cell | The notebook output is identical to the authors' saved output. The paper's tables are images I cannot read, so the matrices are attached in section 6 for a cell-by-cell check against the PDF | ⏳ Manual check pending |
-| 5 | Ext. Data Fig. 1: confidence | 71% of BCDs, 70% of PCPs left the default 50%; r = 0.14–0.17 | 70.7%, 69.8% (cell 82); r: BCD top-1 0.154 / top-3 0.171, PCP 0.141 / 0.150 (†S2) | ✅ Match (note: 71%/70% are per observation; per physician they are 42%/47%) |
-| 6 | Text: collective judgement | 48%, 33%; 77%, 58%; 98% | 48.2%, 33.1%; 77.5%, 58.3%; 97.8% (cell 36) | ✅ Match |
-| 7 | Text + Fig. 3a,b: skin-tone gap | All −4 (<0.001) / −4 (0.001); BCD −5 (0.011) / −3 (0.117); residents −5 (0.114) / −5 (0.113); PCP −3 (0.006) / −4 (0.008); other −5 (0.012) / −4 (0.092) | −4.1 (<0.001) / −3.6 (0.001); −4.7 (0.011) / −3.1 (0.117); −5.0 (0.114) / −5.2 (0.113); −3.4 (0.006) / −3.8 (0.008); −4.8 (0.012) / −4.0 (0.092) (cells 39–41) | ✅ Match |
-| 8 | Fig. 3c,d + Ext. Data Fig. 2 | BCD top-1: atopic dermatitis −18 (0.007), Lyme −20 (<0.001), pityriasis rosea −19 (0.001), CTCL −10 (0.009); lichen planus more accurate on dark skin; PCP significant for three conditions | −17.9 (0.007), −19.8 (<0.001), −18.8 (0.001), −9.7 (0.009); lichen planus +6.7 (0.286); PCP three conditions top-1 all <0.001, top-3 0.002/<0.001/<0.001 (cells 43–45) | ✅ Match |
-| 9 | Ext. Data Fig. 3: patient mix | PCPs (mostly/all white patients) 7 pp lower top-3 on dark skin (0.009); BCD not significant | −7.5 pp, **P = 0.0079**; BCD +4.8 (0.228) (cell 47, †S7) | 🟡 Close (P 0.008 vs 0.009). The Ext. Data Fig. 3 legend says top-1, but the text and the code use top-3 |
-| 10 | Text: training and experience | PCPs with adequate training have a 5 pp smaller gap (0.079); years of practice have no effect | +5.05 pp, **P = 0.0799**; years P = 0.233 (BCD) / 0.753 (PCP) (cell 49, †S7) | 🟡 Close (0.0799 rounds to 0.080) |
-| 11 | Fig. 4a: BCD biopsy | 28%; more on dark skin: atopic dermatitis (0.008), pityriasis rosea (0.015); fewer: pityriasis rubra pilaris (0.033), CTCL (0.001) | 28.0%; +13.4 pp (0.008), +15.2 (0.015); −11.2 (0.033), −19.7 (0.001) (cells 19, 20, †S3) | ✅ Match |
-| 12 | Fig. 4b,c: PCP biopsy and referral | Biopsy 7%, only CTCL significant (0.011); referral **28%**, 4.4 pp more on dark skin (0.012) | Biopsy 7.5%, only CTCL (0.011) ✅; 4.42 pp more on dark skin (P = 0.0117) ✅; **referral rate 35.6%** (light 34.0%, dark 38.4%) (cell 20, †S3) | ❌ Partial mismatch: the overall 28% referral rate cannot be reproduced (section 4, F2) |
-| 13 | Fig. 5a: top-1 before/after AI | BCD 27→36%, PCP 13→22% (<0.001) | 27.3→36.4 (P = 2.6×10⁻⁷); 13.2→21.8 (P = 3.6×10⁻¹¹) (cell 51) | ✅ Match |
-| 14 | Fig. 5b: top-3→top-4 | BCD 37→60%, PCP 17→47%; 59%, 46% after replacing the third diagnosis | 37.2→59.9; 16.9→46.6; 59.4, 46.3 (cells 52, 55) | ✅ Match |
-| 15 | Ext. Data Fig. 4: CTCL sensitivity | 18→26% (0.039)→31% (0.001); specificity 99% | 18.2→26.3 (0.039)→30.9 (0.0013); 98.7/98.9/98.6% (cells 57, 58) | ✅ Match |
-| 16 | Text: uptake rate | 236 images; BCD 40 vs 47% (0.009); PCP 54 vs 61% (0.001) | 236; 40.3 vs 46.5 (0.0087); 54.3 vs 61.3 (0.0014) (cells 64–66) | ✅ Match |
-| 17 | Text: wrong AI suggestions | top-1 drops 1.2 pp (0.517, 0.312); correct top diagnosis replaced <2%; made top diagnosis when all three are wrong: BCD 10%, PCP 14% | 28.7→27.5, 13.2→11.9 (0.517, 0.312†); 1.8%, 1.7%; 10.1%, 14.3% (cell 59, †S4) | ✅ Numbers match, but the wording does not match what the code computes, and the test is questionable (section 4, F3, F4) |
-| 18 | Text: incorrect diagnoses per diagnosis | BCD 1.58 / 1.40 / 1.05 / 0.59; PCP 1.72 / 1.55 / 1.26 / 0.82 | Identical (cell 59) | ✅ Numbers match, but the BCD denominator is wrong (section 4, F1) |
-| 19 | Text: specialist vs PCP + AI | 5 pp higher than PCPs with the control AI (<0.001); 4 pp lower than PCPs with the enhanced AI (0.022) | +5.5 pp (P = 0.00046); −3.6 pp (P = 0.0223) (means from cell 51; P values from a †S6 t-test, not printed by the notebook) | ✅ Match |
-| 20 | Ext. Data Table 3: regression | BCD +13 (<0.001); dark −3 (0.006); AI +8 (<0.001); enhanced AI +8 (0.002); AI×dark −5 (0.008 / 0.048); BCD×dark×AI +4 (0.227) / +8 (0.034) | +13.4 (<0.001); −3.4 (0.006); +8.0 (<0.001); +8.3 (0.002); −5.2 (0.0079) / −4.9 (0.0476); +3.8 (0.227) / +7.7 (0.0339) (cells 71, 72, †S7) | ✅ Match |
-| 21 | Fig. 6: before/after AI × skin tone | With AI, PCPs still show a significant skin-tone gap; BCDs do not | top-1: PCP −7*** (control −10***, enhanced −5*), BCD not significant in any of the three columns; top-4 not significant for either group (cells 61, 62) | ✅ Match (the conclusion refers to top-1) |
-| 22 | Ext. Data Tables 4–5: interface | No significant interaction effects; +9 / −9 pp (<0.001); BCD −12 (<0.001), PCP −7 (0.011) | +9 / −9 (<0.001) ✅; −12.7 (<0.001), −6.9 (0.011) ✅; in the interaction model 2 top-1 terms have P < 0.05: interface×AI −7.2 pp (0.020), interface×AI×dark +8.4 pp (0.033); none for top-4 (cells 67, 74, 79, †S7) | 🟡 Close (section 4, F6) |
-| 23 | Ext. Data Table 6: image sources | 15% from textbooks (11% of all 284 images) | 14.9%; 10.8%, with a denominator of the **277** images BCDs actually saw, not 284 (cell 93) | ✅ Match |
-| 24 | Suppl. Tables 1–4: robustness | Conclusions unchanged; US BCDs 42%, PCPs 19% | Under 4 sample definitions the coefficients keep their direction and size; US 41.98%, 19.30% (cells 68, 109–112) | ✅ Match |
+| 5 | Ext. Data Fig. 1: confidence | 71% of BCDs, 70% of PCPs left the default 50%; r = 0.14–0.17 | 70.7%, 69.8% (cell 82 / In [57]); r: BCD top-1 0.154 / top-3 0.171, PCP 0.141 / 0.150 (†S2) | ✅ Match (note: 71%/70% are per observation; per physician they are 42%/47%) |
+| 6 | Text: collective judgement | 48%, 33%; 77%, 58%; 98% | 48.2%, 33.1%; 77.5%, 58.3%; 97.8% (cell 36 / In [26]) | ✅ Match |
+| 7 | Text + Fig. 3a,b: skin-tone gap | All −4 (<0.001) / −4 (0.001); BCD −5 (0.011) / −3 (0.117); residents −5 (0.114) / −5 (0.113); PCP −3 (0.006) / −4 (0.008); other −5 (0.012) / −4 (0.092) | −4.1 (<0.001) / −3.6 (0.001); −4.7 (0.011) / −3.1 (0.117); −5.0 (0.114) / −5.2 (0.113); −3.4 (0.006) / −3.8 (0.008); −4.8 (0.012) / −4.0 (0.092) (cells 39–41 / In [27]–[29]) | ✅ Match |
+| 8 | Fig. 3c,d + Ext. Data Fig. 2 | BCD top-1: atopic dermatitis −18 (0.007), Lyme −20 (<0.001), pityriasis rosea −19 (0.001), CTCL −10 (0.009); lichen planus more accurate on dark skin; PCP significant for three conditions | −17.9 (0.007), −19.8 (<0.001), −18.8 (0.001), −9.7 (0.009); lichen planus +6.7 (0.286); PCP three conditions top-1 all <0.001, top-3 0.002/<0.001/<0.001 (cells 43–45 / In [30]–[32]) | ✅ Match |
+| 9 | Ext. Data Fig. 3: patient mix | PCPs (mostly/all white patients) 7 pp lower top-3 on dark skin (0.009); BCD not significant | −7.5 pp, **P = 0.0079**; BCD +4.8 (0.228) (cell 47 / In [33], †S7) | 🟡 Close (P 0.008 vs 0.009). The Ext. Data Fig. 3 legend says top-1, but the text and the code use top-3 |
+| 10 | Text: training and experience | PCPs with adequate training have a 5 pp smaller gap (0.079); years of practice have no effect | +5.05 pp, **P = 0.0799**; years P = 0.233 (BCD) / 0.753 (PCP) (cell 49 / In [35], †S7) | 🟡 Close (0.0799 rounds to 0.080) |
+| 11 | Fig. 4a: BCD biopsy | 28%; more on dark skin: atopic dermatitis (0.008), pityriasis rosea (0.015); fewer: pityriasis rubra pilaris (0.033), CTCL (0.001) | 28.0%; +13.4 pp (0.008), +15.2 (0.015); −11.2 (0.033), −19.7 (0.001) (cells 19 / In [15], 20 / In [16], †S3) | ✅ Match |
+| 12 | Fig. 4b,c: PCP biopsy and referral | Biopsy 7%, only CTCL significant (0.011); referral **28%**, 4.4 pp more on dark skin (0.012) | Biopsy 7.5%, only CTCL (0.011) ✅; 4.42 pp more on dark skin (P = 0.0117) ✅; **referral rate 35.6%** (light 34.0%, dark 38.4%) (cell 20 / In [16], †S3) | ❌ Partial mismatch: the overall 28% referral rate cannot be reproduced (section 4, F2) |
+| 13 | Fig. 5a: top-1 before/after AI | BCD 27→36%, PCP 13→22% (<0.001) | 27.3→36.4 (P = 2.6×10⁻⁷); 13.2→21.8 (P = 3.6×10⁻¹¹) (cell 51 / In [36]) | ✅ Match |
+| 14 | Fig. 5b: top-3→top-4 | BCD 37→60%, PCP 17→47%; 59%, 46% after replacing the third diagnosis | 37.2→59.9; 16.9→46.6; 59.4, 46.3 (cells 52 / In [37], 55 / In [39]) | ✅ Match |
+| 15 | Ext. Data Fig. 4: CTCL sensitivity | 18→26% (0.039)→31% (0.001); specificity 99% | 18.2→26.3 (0.039)→30.9 (0.0013); 98.7/98.9/98.6% (cells 57 / In [40], 58 / In [41]) | ✅ Match |
+| 16 | Text: uptake rate | 236 images; BCD 40 vs 47% (0.009); PCP 54 vs 61% (0.001) | 236; 40.3 vs 46.5 (0.0087); 54.3 vs 61.3 (0.0014) (cells 64–66 / In [46]–[48]) | ✅ Match |
+| 17 | Text: wrong AI suggestions | top-1 drops 1.2 pp (0.517, 0.312); correct top diagnosis replaced <2%; made top diagnosis when all three are wrong: BCD 10%, PCP 14% | 28.7→27.5, 13.2→11.9 (0.517, 0.312†); 1.8%, 1.7%; 10.1%, 14.3% (cell 59 / In [42], †S4) | ✅ Numbers match, but the wording does not match what the code computes, and the test is questionable (section 4, F3, F4) |
+| 18 | Text: incorrect diagnoses per diagnosis | BCD 1.58 / 1.40 / 1.05 / 0.59; PCP 1.72 / 1.55 / 1.26 / 0.82 | Identical (cell 59 / In [42]) | ✅ Numbers match, but the BCD denominator is wrong (section 4, F1) |
+| 19 | Text: specialist vs PCP + AI | 5 pp higher than PCPs with the control AI (<0.001); 4 pp lower than PCPs with the enhanced AI (0.022) | +5.5 pp (P = 0.00046); −3.6 pp (P = 0.0223) (means from cell 51 / In [36]; P values from a †S6 t-test, not printed by the notebook) | ✅ Match |
+| 20 | Ext. Data Table 3: regression | BCD +13 (<0.001); dark −3 (0.006); AI +8 (<0.001); enhanced AI +8 (0.002); AI×dark −5 (0.008 / 0.048); BCD×dark×AI +4 (0.227) / +8 (0.034) | +13.4 (<0.001); −3.4 (0.006); +8.0 (<0.001); +8.3 (0.002); −5.2 (0.0079) / −4.9 (0.0476); +3.8 (0.227) / +7.7 (0.0339) (cells 71 / In [51], 72 / In [52], †S7) | ✅ Match |
+| 21 | Fig. 6: before/after AI × skin tone | With AI, PCPs still show a significant skin-tone gap; BCDs do not | top-1: PCP −7*** (control −10***, enhanced −5*), BCD not significant in any of the three columns; top-4 not significant for either group (cells 61 / In [43], 62 / In [44]) | ✅ Match (the conclusion refers to top-1) |
+| 22 | Ext. Data Tables 4–5: interface | No significant interaction effects; +9 / −9 pp (<0.001); BCD −12 (<0.001), PCP −7 (0.011) | +9 / −9 (<0.001) ✅; −12.7 (<0.001), −6.9 (0.011) ✅; in the interaction model 2 top-1 terms have P < 0.05: interface×AI −7.2 pp (0.020), interface×AI×dark +8.4 pp (0.033); none for top-4 (cells 67 / In [49], 74 / In [53], 79 / In [55], †S7) | 🟡 Close (section 4, F6) |
+| 23 | Ext. Data Table 6: image sources | 15% from textbooks (11% of all 284 images) | 14.9%; 10.8%, with a denominator of the **277** images BCDs actually saw, not 284 (cell 93 / In [63]) | ✅ Match |
+| 24 | Suppl. Tables 1–4: robustness | Conclusions unchanged; US BCDs 42%, PCPs 19% | Under 4 sample definitions the coefficients keep their direction and size; US 41.98%, 19.30% (cells 68 / In [50], 109–112 / In [71]–[74]) | ✅ Match |
 | 25 | Methods: AI model (reference values for level C) | Control AI 47%; on the 8 conditions 58% dark, 56% light; enhanced AI 84% (82% dark, 84% light) | Control 46.8%; 57.7%, 55.8% ✅. Enhanced AI: **81.6%** on the 364 images, 84.2% on the 8 conditions; **83.3%** dark, 84.5% light (†S8) | ❌ Partial mismatch (section 4, F5). This is a check on the data; retraining the model is step 7 |
 
 ## 4. Problems found (for section 6 of the report)
 
-**F1 Code bug: the denominator of the BCD "incorrect diagnoses per diagnosis" is the PCP observation count** (cell 59; affects item 18)
-The authors' code is `df_r2[df_r2.dermatologist==1][…].sum() / df_r2[df_r2.pcp_physician==1].shape[0]`. The denominator is the PCPs' 3,150, while the BCDs' own observation count is 2,659. The BCD values reported in the paper are therefore systematically 16% too low:
+**F1 Code bug in cell 59 (In [42]): the denominator of the BCD "incorrect diagnoses per diagnosis" is the PCP observation count** (affects item 18)
+The authors' code is `df_r2[df_r2.dermatologist==1][…].sum() / df_r2[df_r2.pcp_physician==1].shape[0]`. The denominator is the PCPs' 3,150, while the BCDs' own observation count is 2,659. (Why 2,659 here but 2,660 BCD diagnoses in the main-analysis sample of section 5.1: they come from different tables. The main sample counts first-round diagnoses, `guess_round==1`; `df_r2` (built in cell 5 / In [5]) holds the second-round records, the answers after the AI suggestion, `guess_round==2`, under the same filters. Exactly one BCD observation, participant `ec025189…` on their second image, has a first-round diagnosis but no second-round record. For PCPs both tables have 3,150.) The BCD values reported in the paper are therefore systematically 16% too low:
 
 | | top-1 | top-2 | top-3 | top-4 (with AI) |
 |---|---|---|---|---|
@@ -101,15 +103,15 @@ In the model with interface interactions (author Table 2, corresponding to Ext. 
 
 **F7 Other small points**
 - Number of diseases: the data have 44 `consensus_label` values, the paper says 46; 1 image (`refinery29-rosacea-dark-skin.jpg`) has a missing label.
-- The Fig. 6 legend says 3,150 PCP observations, which is the count for all images. The Fig. 6 code (cell 24) uses only the 8 conditions, so it should be 2,496; the legend is wrong.
+- The Fig. 6 legend says 3,150 PCP observations, which is the count for all images. The Fig. 6 code (cell 24 / In [18]) uses only the 8 conditions, so it should be 2,496; the legend is wrong.
 - Ext. Data Fig. 1 says "71% of BCDs", but the code computes it per observation (70.7%). Per physician, only 42% (BCD) and 47% (PCP) never moved the slider.
 - The 11% in Ext. Data Table 6 has a denominator of 277 images, not 284.
-- The paper's Software section lists pandas 1.4.0, seaborn 0.11.1, numpy 1.18.5, etc. The authors' `requirements.txt` has pandas 2.1.0, seaborn 0.12.2, numpy 1.26.0, and the notebook already comments out `.append` in favour of `pd.concat` (cell 22). So the authors' last run used pandas ≥ 2.0, and the version information in the Software section is out of date.
+- The paper's Software section lists pandas 1.4.0, seaborn 0.11.1, numpy 1.18.5, etc. The authors' `requirements.txt` has pandas 2.1.0, seaborn 0.12.2, numpy 1.26.0, and the notebook already comments out `.append` in favour of `pd.concat` (cell 22 / In [17]). So the authors' last run used pandas ≥ 2.0, and the version information in the Software section is out of date.
 - The paper's Fig. 1 says N = 1,120; the data have 1,118.
 
 ## 5. How the supplementary numbers (marked †) were computed
 
-Some numbers are not printed by the authors' notebook, for example expressions in the middle of a cell, values that are only drawn in a figure, or P values shown only as stars in a stargazer table. I made a copy of the notebook in a scratch directory and appended 9 calculation cells (S0–S8) **after** the authors' 120 cells. Exact P values were obtained by re-running the authors' cells (20, 47, 71, 74) unchanged via `exec`, without rewriting any regression specification. The authors' files were not modified.
+Some numbers are not printed by the authors' notebook, for example expressions in the middle of a cell, values that are only drawn in a figure, or P values shown only as stars in a stargazer table. I made a copy of the notebook in a scratch directory and appended 9 calculation cells (S0–S8) **after** the authors' 120 cells. Exact P values were obtained by re-running the authors' cells 20, 47, 71 and 74 (In [16], [33], [51], [53]) unchanged via `exec`, without rewriting any regression specification. The authors' files were not modified.
 
 - `step5_supplement/supp_cells.py`: source of the 9 appended cells
 - `step5_supplement/supplement_executed.ipynb`: the full executed notebook (the authors' 120 cells still run with 0 errors; the supplementary outputs are at the end)
@@ -122,7 +124,7 @@ The notebook prints `confusion_matrix(reference label, top diagnosis).T`: **rows
 
 Column order: Other, Atopic Dermatitis, CTCL, Dermatomyositis, Lichen Planus, Lyme, Pityriasis Rosea, PRP, Secondary Syphilis
 
-**BCD (cell 101)**
+**BCD (cell 101 / In [67])**
 
 | Top diagnosis ↓ / reference → | Other | AD | CTCL | DM | LP | Lyme | PR | PRP | SS |
 |---|---|---|---|---|---|---|---|---|---|
@@ -136,7 +138,7 @@ Column order: Other, Atopic Dermatitis, CTCL, Dermatomyositis, Lichen Planus, Ly
 | PRP | 2 | 1 | 3 | 1 | 2 | 2 | 2 | 36 | 2 |
 | Secondary Syphilis | 3 | 1 | 3 | 1 | 4 | 0 | 4 | 2 | 52 |
 
-**PCP (cell 104)**
+**PCP (cell 104 / In [69])**
 
 | Top diagnosis ↓ / reference → | Other | AD | CTCL | DM | LP | Lyme | PR | PRP | SS |
 |---|---|---|---|---|---|---|---|---|---|

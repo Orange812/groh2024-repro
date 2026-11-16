@@ -8,11 +8,11 @@ Course project for Research Methodology of Computer Science. The reproduction ha
 
 | Folder | What it holds |
 |---|---|
-| [`work/ResearchBox 1802/`](work/ResearchBox%201802/) | The authors' public files from [ResearchBox #1802](https://researchbox.org/1802) (CC BY 4.0): the data (`Data/Experimental Data.csv.zip`), its codebook, `Code/Analysis.ipynb` (saved with the outputs of my run), `Code/Control DLS Training Code.py` and `Code/requirements.txt`. `Code/figs/` holds the 26 figures produced by my run. Commit `26068be` holds the files exactly as downloaded; the only change is `395b201`, a one-line fix to the data path. |
+| [`work/ResearchBox 1802/`](work/ResearchBox%201802/) | The authors' public files from [ResearchBox #1802](https://researchbox.org/1802) (CC BY 4.0): the data (`Data/Experimental Data.csv.zip`), its codebook, `Code/Analysis.ipynb` (saved with the outputs of my run), `Code/Control DLS Training Code.py` and `Code/requirements.txt`. `Code/figs/` holds the 26 figures produced by my run. Commit `26068be` holds the files exactly as downloaded; the only change is `96281ef`, a one-line fix to the data path. |
 | [`original/ResearchBox 1802/`](original/ResearchBox%201802/) | An untouched copy of the authors' files, for side-by-side comparison. Identical to commit `26068be`. |
-| [`groh2024_repro_kit/`](groh2024_repro_kit/) | The reproduction toolkit: analysis scripts (`analysis/`), the Wizard-of-Oz script and DLS training scripts for Colab (`dls/`), and `demo_app/`, a Flask replica of the experiment website that uses 30 public Fitzpatrick17k images. Commit `fe9e009` is the toolkit as received; 6 fix commits follow (`45451d6` … `7947102`), then the translation into English (`e454af7`). It has its own [README](groh2024_repro_kit/README.md). |
+| [`groh2024_repro_kit/`](groh2024_repro_kit/) | The reproduction toolkit: analysis scripts (`analysis/`), the Wizard-of-Oz script and DLS training scripts for Colab (`dls/`), and `demo_app/`, a Flask replica of the experiment website that shows 30 public Fitzpatrick17k images (downloaded on demand, not stored here). Commit `412b3e9` is the toolkit as received; 6 fix commits follow (`4c84645` … `447395a`), then the translation into English (`b758e4c`). It has its own [README](groh2024_repro_kit/README.md). |
 | [`logs/`](logs/) | The evidence: the executed notebook (`analysis_run.html` / `.ipynb`), environment records, change lists (`changes*.txt`, `kit_changes*.txt`), and a verification table plus scripts for each step. The two detailed write-ups are [`step5_verification.md`](logs/step5_verification.md) (level A) and [`step8_platform_check.md`](logs/step8_platform_check.md) (level D). |
-| [`data/`](data/) | `fitzpatrick17k.csv`, the public Fitzpatrick17k metadata (CC BY-NC-SA 3.0), used by `groh2024_repro_kit/dls/fetch_f17k_images.py`. |
+| [`data/`](data/) | `fitzpatrick17k.csv`, the public Fitzpatrick17k annotations (CC BY-NC-SA 3.0), used by `groh2024_repro_kit/dls/fetch_f17k_images.py`. |
 | [`environment/`](environment/) | Conda environment files for the two environments used (see [Environment setup](#environment-setup)). |
 
 ## Datasets
@@ -20,8 +20,8 @@ Course project for Research Methodology of Computer Science. The reproduction ha
 | Dataset | In this repository? | Where |
 |---|---|---|
 | Experiment data: 14,261 diagnoses by 1,118 physicians (authors, ResearchBox #1802, CC BY 4.0) | Yes | `work/ResearchBox 1802/Data/Experimental Data.csv.zip`, codebook in `work/ResearchBox 1802/Codebook/` |
-| Fitzpatrick17k metadata, 16,577 images (Groh et al. 2021, CC BY-NC-SA 3.0) | Yes | `data/fitzpatrick17k.csv` (source: https://github.com/mattgroh/fitzpatrick17k) |
-| 30 Fitzpatrick17k images for the replica website (CC BY-NC-SA 3.0) | Yes | `groh2024_repro_kit/demo_app/static/images/`; `demo_app/data/images.csv` records each image's source URL |
+| Fitzpatrick17k annotations for 16,577 images (Groh et al. 2021, CC BY-NC-SA 3.0) | Yes | `data/fitzpatrick17k.csv` (source: https://github.com/mattgroh/fitzpatrick17k) |
+| 30 Fitzpatrick17k images for the replica website | **No**, listed only | `groh2024_repro_kit/demo_app/data/images.csv` lists them. The Fitzpatrick17k repository does not host the images either. Its README says the "original images [were] collected from Atlas Dermatologico and DermaAmin", and its CC BY-NC-SA 3.0 licence most likely covers only the annotations, so the images are not redistributed here. To download exactly these 30 files (each is checked by MD5): `cd groh2024_repro_kit && python dls/fetch_f17k_images.py --csv ../data/fitzpatrick17k.csv --mode list`. Without them the replica shows placeholders. |
 | Files derived from the authors' data (per-image AI predictions, Wizard-of-Oz output) | Yes | `logs/step7_woz/` |
 | The 364 experiment images (Zenodo, doi:10.5281/zenodo.10070478) | **No** | Restricted access: research or medical use only, and redistribution is not allowed. Access can be requested on Zenodo. Nothing in this repository needs them to run. |
 
@@ -40,7 +40,9 @@ On macOS, the environment must be **activated** (`conda activate groh-orig`), no
 
 ## How to run
 
-Run every command from the repository root.
+Run every command in this section from the repository root. (The toolkit's own [README](groh2024_repro_kit/README.md) is written for running inside `groh2024_repro_kit/`.)
+
+Notebook cells are cited as "cell N (In [k])": N is the cell's 0-based position in `Analysis.ipynb`, counting Markdown cells too, and In [k] is the number Jupyter shows next to it after Run All. For example, cell 59 is In [42], the 60th cell.
 
 **Level A: the authors' notebook** (about 1 minute):
 
@@ -62,7 +64,9 @@ python groh2024_repro_kit/dls/wizard_of_oz.py --pred logs/step7_woz/woz_input.cs
 python logs/step8/grader_agreement.py                     # D: automatic grading vs the authors' manual grading
 DEMO_LOG=/tmp/sim_log.csv python logs/step8/simulate_participants.py groh2024_repro_kit   # D: 18 protocol checks
 
-cd groh2024_repro_kit && python demo_app/app.py --port 5050   # D: replica website at http://127.0.0.1:5050
+cd groh2024_repro_kit
+python dls/fetch_f17k_images.py --csv ../data/fitzpatrick17k.csv --mode list   # D: download the 30 demo images (once)
+python demo_app/app.py --port 5050                                              # D: replica website at http://127.0.0.1:5050
 ```
 
 ## Results by level
@@ -76,7 +80,7 @@ cd groh2024_repro_kit && python demo_app/app.py --port 5050   # D: replica websi
 
 Discrepancies found in the paper (details in `logs/step5_verification.md`, section 4):
 
-- **F1, a code bug in cell 59.** The BCD "incorrect diagnoses per diagnosis" figure is divided by the PCP observation count, so the BCD values are 16% too low.
+- **F1, a code bug in cell 59 (In [42]).** The BCD "incorrect diagnoses per diagnosis" figure is divided by the PCP observation count, so the BCD values are 16% too low.
 - **F2, a number that cannot be reproduced.** The paper's overall PCP referral rate of 28% does not come out of the data, which give 35.6%.
 - **F3–F4, wording and choice of test.** The "all three diagnoses wrong" shares are computed under a looser condition than the text states, and the "not significant" drop after wrong AI suggestions comes from an unpaired test on duplicated rows (a paired test gives P = 0.008 / 0.003).
 - **F5, an unexplained gap that turns out to be a scope difference.** The paper's "84%" for the treatment AI is its accuracy on the 8 main conditions; on all images it is 81.8%.
@@ -88,22 +92,28 @@ This repository combines two earlier git repositories, `work/` and `groh2024_rep
 
 ```bash
 git log --oneline --graph            # the whole history
-git show 395b201                     # the only change to the authors' code (data path)
-git diff fe9e009 7947102 --stat      # the 6 fixes to the toolkit as received
-git show e454af7 --stat              # the toolkit's translation into English
+git show 96281ef                     # the only change to the authors' code (data path)
+git diff 412b3e9 447395a --stat      # the 6 fixes to the toolkit as received
+git show b758e4c --stat              # the toolkit's translation into English
 ```
 
-The toolkit and the write-ups in `logs/` were originally written in Chinese and have been translated into English. The translation changes no code logic and no numbers; every script was rerun before and after with identical results. The toolkit's original Chinese text remains visible in the commits before `e454af7`.
+The toolkit and the write-ups in `logs/` were originally written in Chinese and have been translated into English. The translation changes no code logic and no numbers; every script was rerun before and after with identical results. The toolkit's original Chinese text remains visible in the commits before `b758e4c`.
 
 ## Not included, and why
 
 | Item | Reason |
 |---|---|
 | The 364 experiment images (Zenodo) | Restricted access; redistribution is not allowed (see [Datasets](#datasets)). |
+| The 30 Fitzpatrick17k demo images | Their copyright most likely stays with the source atlases; the list and a verified download script are included instead (see [Datasets](#datasets)). |
 | Notebook checkpoints, caches | Regenerated automatically. |
 | The replica website's response log | Test entries only, not part of the code. |
 
 ## Licences
 
-- The authors' data and code (ResearchBox #1802) are CC BY 4.0. Please cite the paper and ResearchBox #1802.
-- Fitzpatrick17k (`data/fitzpatrick17k.csv` and the 30 images in `groh2024_repro_kit/demo_app/static/images/`) is CC BY-NC-SA 3.0: non-commercial use, with attribution, under the same licence. The images were downloaded from public atlasdermatologico.com.br addresses, and `demo_app/data/images.csv` records each image's source. Two of them also appear in the paper's restricted image set, but they are used here under the Fitzpatrick17k licence.
+| Part | Licence |
+|---|---|
+| Code and documentation written for this reproduction: `groh2024_repro_kit/`, the scripts and write-ups in `logs/`, `environment/`, this README | MIT, see [`LICENSE`](LICENSE) (except the items in the next row) |
+| The authors' files and what is derived from them: `work/ResearchBox 1802/` and `original/ResearchBox 1802/` (data, codebook, notebook, training code, and the figures of my run), the executed copies of the notebook in `logs/` (`analysis_run.*`, `step5_supplement/supplement_executed.ipynb`), the per-image files in `logs/step7_woz/`, and `groh2024_repro_kit/common/dx_options_445.txt` (the diagnosis list from the notebook) | CC BY 4.0, from ResearchBox #1802. Please cite the paper and ResearchBox #1802. |
+| `data/fitzpatrick17k.csv` (Fitzpatrick17k annotations) | CC BY-NC-SA 3.0: non-commercial use, with attribution, under the same licence |
+| Fitzpatrick17k images (not included) | Most likely held by the source atlases (Atlas Dermatologico, DermaAmin) |
+| Zenodo experiment images (not included) | Zenodo access terms: research or medical use only |

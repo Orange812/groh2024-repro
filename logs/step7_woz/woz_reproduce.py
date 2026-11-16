@@ -54,7 +54,7 @@ print(f"control correct ({ctrl_ok.sum()} images): treatment identical in {unchan
 print(f"control wrong   ({len(w)} images): flipped to the truth {flips.sum()}, unchanged {stays.sum()}, "
       f"changed to another wrong label {other.sum()}")
 print(f"flip rate among wrong predictions: {flips.sum()}/{len(w)} = {flips.mean():.1%}   (paper: 65%)")
-print("  note: 127 is also the number printed by the author's notebook (cell 95: print(127/364))\n")
+print("  note: 127 is also the number printed by the author's notebook (cell 95 (In [64]): print(127/364))\n")
 
 def acc(mask_ok, sub):
     return f"{mask_ok[sub].mean():.1%}"
